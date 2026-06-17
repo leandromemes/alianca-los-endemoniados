@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Los Endemoniados — Aliança de Grupos</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div id="introOverlay" class="intro-overlay">
+    <div class="intro-box">
+      <h2 class="intro-title">BEM-VINDO À ALIANÇA</h2>
+      <p class="intro-subtitle">Los Endemoniados</p>
+      <button id="btnEntrarSite" class="intro-btn-entrar">ENTRAR NO SITE</button>
+    </div>
+  </div>
+
+  <div class="bg-video-wrap">
+    <video autoplay loop muted playsinline controlslist="nodownload" class="video-elemento">
+      <source src="meu-video.mp4" type="video/mp4">
+    </video>
+    <div class="ambient-bg"></div>
+  </div>
+
+  <audio id="musicAudio" loop preload="auto">
+    <source src="minha-musica.mp3" type="audio/mp3">
+  </audio>
+
+  <div class="mobile-header">
+    <span class="mobile-brand">LOS ENDEMONIADOS</span>
+    <button id="btnMenuMobile" class="btn-menu-mobile" aria-label="Abrir Menu">☰</button>
+  </div>
+
+  <div class="site-layout">
+    
+    <aside id="sidebarEsquerda" class="sidebar-esquerda">
+      <div class="sidebar-logo-box">
+        <div class="mini-avatar">
+          <img src="foto-logo.png" alt="Logo L.E" class="logo-img-sidebar">
+        </div>
+        <span class="sidebar-brand">LOS ENDEMONIADOS</span>
+      </div>
+      
+      <nav class="sidebar-menu">
+        <a href="#sec-vips" class="menu-item active">⭐ GRUPOS VIP</a>
+        <a href="#sec-normais" class="menu-item">💬 GRUPOS GERAIS</a>
+        <a href="#sec-canais-wa" class="menu-item">📢 CANAIS WHATSAPP</a>
+        <a href="#sec-tg-grupos" class="menu-item">🔹 TELEGRAM GRUPOS</a>
+        <a href="#sec-tg-canais" class="menu-item">🔸 TELEGRAM CANAIS</a>
+      </nav>
+
+      <button id="btnAbrirAdmin" class="menu-item btn-admin-trigger" style="margin-top: 1rem; text-align: left; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,0,60,0.3); cursor: pointer;">
+        🔐 PAINEL ADMIN
+      </button>
+
+      <button id="musicBtn" class="sidebar-player" aria-label="Controlar Música">
+        <div class="player-espectro" id="playerDisco">
+          <span class="barra-espectro"></span>
+          <span class="barra-espectro"></span>
+          <span class="barra-espectro"></span>
+          <span class="barra-espectro"></span>
+        </div>
+        <div class="player-info">
+          <span class="player-track">Música de Fundo</span>
+          <span class="player-status" id="playerStatus">Pausado</span>
+        </div>
+      </button>
+    </aside>
+
+    <div class="page-wrap">
+      
+      <header class="site-header">
+        <div class="header-nav-links">
+          <span>ALIANÇA</span>
+          <span class="status-online">● ONLINE</span>
+        </div>
+      </header>
+
+      <section class="hero">
+        <div class="hero-profile">
+          <div class="hero-avatar-wrap">
+            <div class="hero-avatar-ring">
+              <div class="hero-avatar">
+                <img src="foto-logo.png" alt="Logo Los Endemoniados" class="logo-img-hero">
+              </div>
+            </div>
+            <div class="hero-online-dot"></div>
+          </div>
+          
+          <div class="hero-info">
+            <div class="hero-badge">ALIANÇA OFICIAL</div>
+            <h1 class="hero-name">LOS ENDEMONIADOS</h1>
+            <p class="hero-desc">Lealdade e a palavra que nos guia!</p>
+            
+            <div class="hero-social">
+              <a href="https://wa.me/5574991940377" target="_blank" class="social-pill">WhatsApp</a>
+              <a href="https://t.me/+C__RoXm7BVk5NDBh" target="_blank" class="social-pill">Telegram</a>
+              
+              <div class="share-dropdown-wrapper">
+                <button id="btnShareTrigger" class="social-pill btn-share-main">
+                  🔗 COMPARTILHAR
+                </button>
+                <div id="shareMenu" class="share-dropdown-menu">
+                  <button id="btnCopyLink" class="share-menu-item">
+                    📋 Copiar Link
+                  </button>
+                  <a id="shareWA" href="#" target="_blank" class="share-menu-item">
+                    🟢 Mandar no WhatsApp
+                  </a>
+                  <a id="shareTG" href="#" target="_blank" class="share-menu-item">
+                    🔵 Mandar no Telegram
+                  </a>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <main class="container">
+        
+        <div class="stats-bar">
+          <div class="stat-card">
+            <span class="stat-value text-red" id="count-total">0</span>
+            <span class="stat-label">TOTAL DE LINKS</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value text-red" id="count-visitas-hoje">0</span>
+            <span class="stat-label">VISITANTES HOJE</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value text-green" id="count-online">0</span>
+            <span class="stat-label">ONLINE AGORA</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="count-visitas-total">0</span>
+            <span class="stat-label">VISITANTES TOTAL</span>
+          </div>
+        </div>
+
+        <section id="sec-vips" class="secao-grupos-wrapper">
+          <div class="section-header">
+            <h2 class="section-header-title">⭐ GRUPOS VIP</h2>
+            <div class="section-header-line"></div>
+          </div>
+          <div class="carrossel-container">
+            <div id="gradeVips" class="groups-grid"></div>
+          </div>
+        </section>
+
+        <section id="sec-normais" class="secao-grupos-wrapper">
+          <div class="section-header">
+            <h2 class="section-header-title">💬 GRUPOS GERAIS</h2>
+            <div class="section-header-line"></div>
+          </div>
+          <div class="carrossel-container">
+            <div id="gradeNormais" class="groups-grid"></div>
+          </div>
+        </section>
+
+        <section id="sec-canais-wa" class="secao-grupos-wrapper">
+          <div class="section-header">
+            <h2 class="section-header-title">📢 CANAIS WHATSAPP</h2>
+            <div class="section-header-line"></div>
+          </div>
+          <div class="carrossel-container">
+            <div id="gradeCanaisWA" class="groups-grid"></div>
+          </div>
+        </section>
+
+        <section id="sec-tg-grupos" class="secao-grupos-wrapper">
+          <div class="section-header">
+            <h2 class="section-header-title">🔹 TELEGRAM GRUPOS</h2>
+            <div class="section-header-line"></div>
+          </div>
+          <div class="carrossel-container">
+            <div id="gradeTelegramGrupos" class="groups-grid"></div>
+          </div>
+        </section>
+
+        <section id="sec-tg-canais" class="secao-grupos-wrapper">
+          <div class="section-header">
+            <h2 class="section-header-title">🔸 TELEGRAM CANAIS</h2>
+            <div class="section-header-line"></div>
+          </div>
+          <div class="carrossel-container">
+            <div id="gradeTelegramCanais" class="groups-grid"></div>
+          </div>
+        </section>
+
+        <section id="sec-staff" class="secao-grupos-wrapper">
+          <div class="section-header">
+            <h2 class="section-header-title">👑 DONO E ADMS</h2>
+            <div class="section-header-line"></div>
+          </div>
+          
+          <div class="staff-layout-quadrado">
+            <div class="owner-card-square">
+              <span class="owner-square-badge">DONO</span>
+              <div class="owner-square-avatar">
+                <img src="dono.png" alt="༄ Đev Šoberano ×͜×" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150';">
+                <div class="owner-square-status"></div>
+              </div>
+              <div class="owner-square-info">
+                <h3 class="owner-square-name">༄ Đev Šoberano ×͜×</h3>
+                <p class="owner-square-role">Desenvolvedor Principal</p>
+              </div>
+              <a href="https://wa.me/5574991940377" target="_blank" class="owner-square-btn">
+                CHAMAR
+              </a>
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+      <footer class="site-footer">
+        <p>&copy; 2026 <strong>Los Endemoniados</strong>. Todos os direitos reservados à Aliança.</p>
+        <p class="footer-credits">Desenvolvido por ༄ Đev Šoberano ××</p>
+      </footer>
+
+    </div>
+  </div>
+
+  <button id="musicBtnMobile" class="music-fab-mobile" aria-label="Play/Pause Música">
+    <span id="fabIcon">🎵</span>
+  </button>
+
+  <div id="modalAdmin" class="modal-admin-overlay">
+    <div class="modal-admin-box">
+      <div class="modal-admin-header">
+        <h3>PAINEL DE CONTROLE</h3>
+        <button id="btnFecharAdmin" class="modal-close-btn">&times;</button>
+      </div>
+      
+      <form id="formLoginAdm" onsubmit="return false;">
+        <p class="modal-instruction">Insira a credencial de Administrador:</p>
+        <input type="password" id="campoSenhaAdm" placeholder="Digite a senha secreta..." class="admin-input" required>
+        <button type="submit" class="admin-submit-btn">LOGAR NO PAINEL</button>
+      </form>
+
+      <div id="areaRestritaAdm" style="display: none;">
+        <form id="formCadastroLink" onsubmit="return false;">
+          <label class="form-label">Nome do Grupo/Canal</label>
+          <input type="text" id="admNomeGrupo" placeholder="Ex: COMPLEXO 5.0" class="admin-input" required>
+
+          <label class="form-label">Link de Acesso</label>
+          <input type="url" id="admLinkGrupo" placeholder="https://chat.whatsapp.com/..." class="admin-input" required>
+
+          <label class="form-label">Imagem do Grupo (Upload de Arquivo)</label>
+          <input type="file" id="admImgGrupo" class="admin-input" accept="image/*" required>
+
+          <label class="form-label">Sessão / Categoria do Link</label>
+          <select id="admSessaoGrupo" class="admin-input" required>
+            <option value="grupo-vip">⭐ Grupo VIP</option>
+            <option value="grupo-geral">💬 Grupo Geral</option>
+            <option value="canal-wa">📢 Canal WhatsApp</option>
+            <option value="tg-grupo">🔹 Telegram Grupo</option>
+            <option value="tg-canal">🔸 Telegram Canal</option>
+          </select>
+
+          <button type="submit" id="btnPublicarLink" class="admin-submit-btn" style="background: #00e676; border-color: #00e676; color: #000; font-weight: 900;">PUBLICAR NO SITE</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const modal = document.getElementById('modalAdmin');
+    const btnAbrir = document.getElementById('btnAbrirAdmin');
+    const btnFechar = document.getElementById('btnFecharAdmin');
+    
+    // Elementos Menu Mobile
+    const btnMenuMobile = document.getElementById('btnMenuMobile');
+    const sidebarEsquerda = document.getElementById('sidebarEsquerda');
+
+    if(btnAbrir && modal && btnFechar) {
+      btnAbrir.onclick = () => {
+        modal.style.display = 'flex';
+        if(sidebarEsquerda) sidebarEsquerda.classList.remove('open'); // fecha o menu mobile ao abrir o admin
+      };
+      btnFechar.onclick = () => modal.style.display = 'none';
+      window.onclick = (e) => { if(e.target === modal) modal.style.display = 'none'; }
+    }
+
+    // Controle de abertura do menu lateral no celular
+    if(btnMenuMobile && sidebarEsquerda) {
+      btnMenuMobile.onclick = (e) => {
+        e.stopPropagation();
+        sidebarEsquerda.classList.toggle('open');
+      };
+      
+      // Fecha a gaveta de menu se o usuário clicar fora dela
+      document.addEventListener('click', (e) => {
+        if (!sidebarEsquerda.contains(e.target) && e.target !== btnMenuMobile) {
+          sidebarEsquerda.classList.remove('open');
+        }
+      });
+
+      // Fecha ao clicar em qualquer item do menu interno
+      const itensMenu = sidebarEsquerda.querySelectorAll('.menu-item');
+      itensMenu.forEach(item => {
+        item.addEventListener('click', () => sidebarEsquerda.classList.remove('open'));
+      });
+    }
+  </script>
+
+  <script src="app.js"></script>
+</body>
+</html>
