@@ -108,29 +108,59 @@ function gerenciarEstatisticasReais() {
 }
 
 // ============================================================================
-// 3. PLAYER DE ÁUDIO E CONTROLE DE INTRODUÇÃO
+// 3. PLAYER DE ÁUDIO E CONTROLE DE INTRODUÇÃO (VERSÃO COM ANIMAÇÃO)
 // ============================================================================
 function inicializarPlayerMusica() {
   const audio = document.getElementById("musicAudio");
-  const fabIcon = document.getElementById("fabIcon");
+  const btnDesktop = document.getElementById("musicBtn");
   const btnMobile = document.getElementById("musicBtnMobile");
+  const statusTexto = document.getElementById("playerStatus");
+  const fabIcon = document.getElementById("fabIcon");
+  const disco = document.getElementById("playerDisco"); // O elemento da animação
   const btnEntrar = document.getElementById("btnEntrarSite");
   const intro = document.getElementById("introOverlay");
 
-  const toggleAudio = () => {
-    if (audio.paused) {
-      audio.play().then(() => fabIcon.innerText = "⏸️").catch(() => {});
-    } else {
-      audio.pause();
-      fabIcon.innerText = "🎵";
+  const atualizarUI = () => {
+    const tocando = !audio.paused;
+    
+    // Atualiza status de texto
+    if (statusTexto) {
+      statusTexto.innerText = tocando ? "Tocando" : "Pausado";
+      statusTexto.style.color = tocando ? "#00e676" : "";
+    }
+    
+    // Atualiza ícone do botão mobile
+    if (fabIcon) fabIcon.innerText = tocando ? "⏸️" : "🎵";
+
+    // Atualiza a animação do espectro (adiciona/remove classe .playing)
+    if (disco) {
+      if (tocando) {
+        disco.classList.add("playing");
+      } else {
+        disco.classList.remove("playing");
+      }
     }
   };
 
+  const toggleAudio = () => {
+    if (audio.paused) {
+      audio.play().catch(() => {});
+    } else {
+      audio.pause();
+    }
+  };
+
+  if (btnDesktop) btnDesktop.onclick = toggleAudio;
   if (btnMobile) btnMobile.onclick = toggleAudio;
+  
+  // Eventos nativos garantem a sincronia total
+  audio.onplay = atualizarUI;
+  audio.onpause = atualizarUI;
+
   if (btnEntrar) {
     btnEntrar.onclick = () => {
       intro.classList.add("ocultar");
-      audio.play().then(() => fabIcon.innerText = "⏸️").catch(() => {});
+      audio.play().catch(() => {});
     };
   }
 }
