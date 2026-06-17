@@ -1049,58 +1049,22 @@ select.admin-input option {
   .sidebar-player { display: none !important; }
 }
 
-/* --- ADIÇÃO DE SEGURANÇA: TRAVAMENTO DE TELA E CARROSSEL --- */
+/* --- CORREÇÃO FINAL DE LARGURA --- */
+.carrossel-container {
+    max-width: 100%;
+    overflow-x: auto !important;
+    white-space: nowrap;
+}
+
+.groups-grid {
+    display: flex !important; /* Força o flex mesmo em desktop */
+    flex-wrap: nowrap !important;
+    gap: 1.25rem;
+    width: max-content; /* Impede que o grid estique */
+}
+
+/* Opcional: Garante que nada saia da tela */
 body {
     overflow-x: hidden !important;
     width: 100vw;
-}
-
-.carrossel-wrapper {
-    position: relative;
-    width: 100%;
-    display: flex;
-    align-items: center;
-}
-
-.carrossel-container {
-    display: flex;
-    gap: 1.25rem;
-    overflow-x: auto;
-    scroll-behavior: smooth;
-    padding: 10px 0;
-    scrollbar-width: none;
-    width: 100%;
-}
-
-.carrossel-container::-webkit-scrollbar { display: none; }
-
-.btn-nav {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(255, 0, 60, 0.8);
-    color: #fff;
-    border: none;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    cursor: pointer;
-    z-index: 10;
-    font-size: 1.2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: 0.3s;
-}
-
-.btn-nav:hover { background: #ff003c; box-shadow: 0 0 15px #ff003c; }
-.btn-prev { left: -5px; } /* Ajuste fino de posição */
-.btn-next { right: -5px; }
-
-/* Garante que os cards não quebrem o layout */
-.groups-grid {
-    display: flex;
-    gap: 1.25rem;
-    padding-bottom: 0.5rem;
-    min-width: min-content; /* Impede que os cards fiquem espremidos */
 }
