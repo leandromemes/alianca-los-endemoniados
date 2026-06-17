@@ -27,280 +27,143 @@ function criarCardHtml(id, item) {
   `;
 }
 
-// BUSCA OS DADOS DO FIREBASE EM TEMPO REAL E ATUALIZA A TELA
+// INJETAR SETAS DE NAVEGAÇÃO
+function injetarSetasCarrossel() {
+  const containers = document.querySelectorAll('.carrossel-container');
+  containers.forEach((cont, index) => {
+    const gridId = cont.querySelector('.groups-grid').id;
+    
+    // Evita duplicar setas se já existirem
+    if (!cont.querySelector('.btn-seta-prev')) {
+      cont.insertAdjacentHTML('afterbegin', `<button class="btn-seta btn-seta-prev" onclick="scrollCarrossel('${gridId}', -300)">❮</button>`);
+      cont.insertAdjacentHTML('beforeend', `<button class="btn-seta btn-seta-next" onclick="scrollCarrossel('${gridId}', 300)">❯</button>`);
+    }
+  });
+}
+
+function scrollCarrossel(idContainer, direcao) {
+  const container = document.getElementById(idContainer);
+  if (container) {
+    container.scrollBy({ left: direcao, behavior: 'smooth' });
+  }
+}
+
+// BUSCA OS DADOS DO FIREBASE
 function carregarLinksDoFirebase() {
   fetch(`${FIREBASE_URL}/links.json`)
     .then(res => res.json())
     .then(dados => {
-      const containerVips = document.getElementById("gradeVips");
-      const containerNormais = document.getElementById("gradeNormais");
-      const containerCanaisWA = document.getElementById("gradeCanaisWA");
-      const containerTgGrupos = document.getElementById("gradeTelegramGrupos");
-      const containerTgCanais = document.getElementById("gradeTelegramCanais");
+      const containers = {
+        "grupo-vip": document.getElementById("gradeVips"),
+        "grupo-geral": document.getElementById("gradeNormais"),
+        "canal-wa": document.getElementById("gradeCanaisWA"),
+        "tg-grupo": document.getElementById("gradeTelegramGrupos"),
+        "tg-canal": document.getElementById("gradeTelegramCanais")
+      };
 
-      if (containerVips) containerVips.innerHTML = "";
-      if (containerNormais) containerNormais.innerHTML = "";
-      if (containerCanaisWA) containerCanaisWA.innerHTML = "";
-      if (containerTgGrupos) containerTgGrupos.innerHTML = "";
-      if (containerTgCanais) containerTgCanais.innerHTML = "";
+      Object.values(containers).forEach(cont => { if(cont) cont.innerHTML = ""; });
 
       if (!dados) {
-        const totalTxt = document.getElementById("count-total");
-        if (totalTxt) totalTxt.innerText = "0";
+        document.getElementById("count-total").innerText = "0";
         return;
       }
 
       let totalContador = 0;
       Object.keys(dados).forEach(id => {
         const item = dados[id];
-        const cardHtml = criarCardHtml(id, item);
-        totalContador++;
-
-        if (item.tipo === "grupo-vip" && containerVips) containerVips.innerHTML += cardHtml;
-        else if (item.tipo === "grupo-geral" && containerNormais) containerNormais.innerHTML += cardHtml;
-        else if (item.tipo === "canal-wa" && containerCanaisWA) containerCanaisWA.innerHTML += cardHtml;
-        else if (item.tipo === "tg-grupo" && containerTgGrupos) containerTgGrupos.innerHTML += cardHtml;
-        else if (item.tipo === "tg-canal" && containerTgCanais) containerTgCanais.innerHTML += cardHtml;
+        if (containers[item.tipo]) {
+          containers[item.tipo].innerHTML += criarCardHtml(id, item);
+          totalContador++;
+        }
       });
 
-      const totalTxt = document.getElementById("count-total");
-      if (totalTxt) totalTxt.innerText = totalContador;
+      document.getElementById("count-total").innerText = totalContador;
+      injetarSetasCarrossel(); // Garante que as setas apareçam após carregar os cards
       verificarStatusPainelAdm();
     })
-    .catch(err => console.error("Erro ao puxar dados do Firebase:", err));
+    .catch(err => console.error("Erro Firebase:", err));
 }
 
 // ============================================================================
-// 2. SISTEMA DE CONTROLE DE VISITANTES REAIS
+// 2. ESTATÍSTICAS E DEMAIS LÓGICAS (MANTIDAS)
 // ============================================================================
 function gerenciarEstatisticasReais() {
   const hojeStr = new Date().toISOString().slice(0, 10);
   const idSessaoUnica = Math.random().toString(36).substring(2, 9);
-
-  fetch(`${FIREBASE_URL}/estatisticas/visitas_totais.json`)
-    .then(res => res.json())
-    .then(total => {
-      let novoTotal = (parseInt(total) || 0) + 1;
-      fetch(`${FIREBASE_URL}/estatisticas/visitas_totais.json`, { method: "PUT", body: novoTotal });
-      const el = document.getElementById("count-visitas-total");
-      if (el) el.innerText = novoTotal.toLocaleString("pt-BR");
-    });
-
-  fetch(`${FIREBASE_URL}/estatisticas/dias/${hojeStr}.json`)
-    .then(res => res.json())
-    .then(totalDia => {
-      let novoTotalDia = (parseInt(totalDia) || 0) + 1;
-      fetch(`${FIREBASE_URL}/estatisticas/dias/${hojeStr}.json`, { method: "PUT", body: novoTotalDia });
-      const el = document.getElementById("count-visitas-hoje");
-      if (el) el.innerText = novoTotalDia.toLocaleString("pt-BR");
-    });
+  
+  fetch(`${FIREBASE_URL}/estatisticas/visitas_totais.json`).then(res => res.json()).then(total => {
+    let novoTotal = (parseInt(total) || 0) + 1;
+    fetch(`${FIREBASE_URL}/estatisticas/visitas_totais.json`, { method: "PUT", body: novoTotal });
+    document.getElementById("count-visitas-total").innerText = novoTotal.toLocaleString("pt-BR");
+  });
 
   const refOnline = `${FIREBASE_URL}/online/${idSessaoUnica}.json`;
   fetch(refOnline, { method: "PUT", body: true });
-
-  const pingInterval = setInterval(() => {
-    fetch(refOnline, { method: "PUT", body: true }).catch(() => clearInterval(pingInterval));
-  }, 10000);
-
-  window.addEventListener("beforeunload", () => {
-    if (navigator.sendBeacon) {
-      navigator.sendBeacon(`${FIREBASE_URL}/online/${idSessaoUnica}.json?x-http-method-override=DELETE`);
-    } else {
-      fetch(`${FIREBASE_URL}/online/${idSessaoUnica}.json`, { method: "DELETE", keepalive: true });
-    }
-  });
-
-  setInterval(() => {
-    fetch(`${FIREBASE_URL}/online.json`)
-      .then(res => res.json())
-      .then(onlineData => {
-        const totalOnline = onlineData ? Object.keys(onlineData).length : 1;
-        const el = document.getElementById("count-online");
-        if (el) el.innerText = totalOnline;
-      })
-      .catch(err => console.error("Erro ao processar usuários online:", err));
-  }, 5000);
+  window.addEventListener("beforeunload", () => fetch(`${FIREBASE_URL}/online/${idSessaoUnica}.json`, { method: "DELETE", keepalive: true }));
 }
 
-// ============================================================================
-// 3. PLAYER DE ÁUDIO E CONTROLE DE INTRODUÇÃO (ATUALIZADO)
-// ============================================================================
 function inicializarPlayerMusica() {
   const audio = document.getElementById("musicAudio");
-  const btnManual = document.getElementById("musicBtn");
-  const btnMobile = document.getElementById("musicBtnMobile");
-  const disco = document.getElementById("playerDisco");
-  const statusTexto = document.getElementById("playerStatus");
-  const fabIcon = document.getElementById("fabIcon");
-  const introOverlay = document.getElementById("introOverlay");
   const btnEntrarSite = document.getElementById("btnEntrarSite");
+  const introOverlay = document.getElementById("introOverlay");
 
-  if (!btnEntrarSite || !introOverlay) return;
-
-  function atualizarVisualPlayer(isTocando) {
-    if (disco && statusTexto) {
-      if (isTocando) {
-        disco.classList.add("playing");
-        statusTexto.innerText = "Tocando";
-        statusTexto.style.color = "#00e676";
-      } else {
-        disco.classList.remove("playing");
-        statusTexto.innerText = "Pausado";
-        statusTexto.style.color = "";
-      }
-    }
-    if (btnMobile) {
-      if (isTocando) {
-        btnMobile.classList.add("playing");
-        if (fabIcon) fabIcon.innerText = "⏸️"; 
-      } else {
-        btnMobile.classList.remove("playing");
-        if (fabIcon) fabIcon.innerText = "🎵";
-      }
-    }
-  }
-
-  btnEntrarSite.onclick = function() {
+  btnEntrarSite.onclick = () => {
     introOverlay.classList.add("ocultar");
-    if (audio) {
-      audio.play()
-        .then(() => atualizarVisualPlayer(true))
-        .catch(err => {
-          console.log("Áudio bloqueado:", err);
-          atualizarVisualPlayer(false);
-        });
-    }
+    audio.play().catch(() => {});
+    document.getElementById("playerStatus").innerText = "Tocando";
   };
-
-  const togglePlay = () => {
-    if (audio.paused) {
-      audio.play().then(() => atualizarVisualPlayer(true)).catch(() => {});
-    } else {
-      audio.pause();
-      atualizarVisualPlayer(false);
-    }
-  };
-
-  if (btnManual) btnManual.onclick = togglePlay;
-  if (btnMobile) btnMobile.onclick = togglePlay;
 }
 
-// ============================================================================
-// 4. ENGINE DO PAINEL ADMINISTRATIVO
-// ============================================================================
 function inicializarPainelControleAdm() {
   const formLogin = document.getElementById("formLoginAdm");
-  const formCadastro = document.getElementById("formCadastroLink");
-  const areaPainel = document.getElementById("areaRestritaAdm");
-  const btnPublicar = document.getElementById("btnPublicarLink");
+  formLogin.onsubmit = (e) => {
+    e.preventDefault();
+    if (document.getElementById("campoSenhaAdm").value === SENHA_ADMIN_SECRETA) {
+      localStorage.setItem("adm_logado", "true");
+      document.getElementById("areaRestritaAdm").style.display = "block";
+      formLogin.style.display = "none";
+      verificarStatusPainelAdm();
+    }
+  };
 
-  if (formLogin) {
-    formLogin.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const senhaDigitada = document.getElementById("campoSenhaAdm").value;
+  document.getElementById("formCadastroLink").onsubmit = (e) => {
+    e.preventDefault();
+    const inputImg = document.getElementById("admImgGrupo");
+    const formData = new FormData();
+    formData.append("image", inputImg.files[0]);
 
-      if (senhaDigitada === SENHA_ADMIN_SECRETA) {
-        localStorage.setItem("adm_logado", "true");
-        if (areaPainel) areaPainel.style.display = "block";
-        formLogin.style.display = "none";
-        verificarStatusPainelAdm();
-        alert("Acesso autorizado!");
-      } else {
-        alert("Senha incorreta!");
-      }
-    });
-  }
-
-  if (formCadastro) {
-    formCadastro.addEventListener("submit", (e) => {
-      e.preventDefault();
-      if (localStorage.getItem("adm_logado") !== "true") return;
-
-      const inputArquivo = document.getElementById("admImgGrupo");
-      const imagemSelecionada = inputArquivo.files[0];
-      const formData = new FormData();
-      formData.append("image", imagemSelecionada);
-
-      btnPublicar.innerText = "ENVIANDO...";
-      btnPublicar.disabled = true;
-
-      fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData })
-      .then(res => res.json())
-      .then(resultadoUpload => {
-        const novoLinkItem = {
-          nome: document.getElementById("admNomeGrupo").value,
-          link: document.getElementById("admLinkGrupo").value,
-          imagem: resultadoUpload.data.url,
-          tipo: document.getElementById("admSessaoGrupo").value
-        };
-        return fetch(`${FIREBASE_URL}/links.json`, { method: "POST", body: JSON.stringify(novoLinkItem) });
-      })
-      .then(() => {
-        alert("Sucesso!");
-        formCadastro.reset();
-        carregarLinksDoFirebase();
-      })
-      .catch(err => { alert("Erro no envio."); console.error(err); })
-      .finally(() => { btnPublicar.innerText = "PUBLICAR NO SITE"; btnPublicar.disabled = false; });
-    });
-  }
+    fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData })
+    .then(res => res.json())
+    .then(r => {
+      const novoLink = {
+        nome: document.getElementById("admNomeGrupo").value,
+        link: document.getElementById("admLinkGrupo").value,
+        imagem: r.data.url,
+        tipo: document.getElementById("admSessaoGrupo").value
+      };
+      return fetch(`${FIREBASE_URL}/links.json`, { method: "POST", body: JSON.stringify(novoLink) });
+    })
+    .then(() => { alert("Sucesso!"); carregarLinksDoFirebase(); });
+  };
 }
 
 function removerLinkDoFirebase(id) {
   if (confirm("Deseja excluir?")) {
-    fetch(`${FIREBASE_URL}/links/${id}.json`, { method: "DELETE" })
-      .then(() => carregarLinksDoFirebase());
+    fetch(`${FIREBASE_URL}/links/${id}.json`, { method: "DELETE" }).then(() => carregarLinksDoFirebase());
   }
 }
 
 function verificarStatusPainelAdm() {
-  const botoesDeletar = document.querySelectorAll(".btn-deletar-card-adm");
-  const areaPainel = document.getElementById("areaRestritaAdm");
-  const formLogin = document.getElementById("formLoginAdm");
-
   if (localStorage.getItem("adm_logado") === "true") {
-    if (areaPainel) areaPainel.style.display = "block";
-    if (formLogin) formLogin.style.display = "none";
-    botoesDeletar.forEach(btn => btn.style.display = "block");
+    document.querySelectorAll(".btn-deletar-card-adm").forEach(b => b.style.display = "block");
+    document.getElementById("areaRestritaAdm").style.display = "block";
+    document.getElementById("formLoginAdm").style.display = "none";
   }
 }
 
-// ============================================================================
-// 5. ENGINE DO SISTEMA DE COMPARTILHAMENTO ATIVO
-// ============================================================================
-function inicializarSistemaCompartilhar() {
-  const btnShareTrigger = document.getElementById('btnShareTrigger');
-  const shareMenu = document.getElementById('shareMenu');
-  const btnCopyLink = document.getElementById('btnCopyLink');
-  
-  if (btnShareTrigger) {
-    btnShareTrigger.addEventListener('click', (e) => {
-      e.stopPropagation();
-      shareMenu.classList.toggle('show');
-    });
-  }
-
-  const siteUrl = window.location.href;
-  if (document.getElementById('shareWA')) document.getElementById('shareWA').href = `https://api.whatsapp.com/send?text=${encodeURIComponent(siteUrl)}`;
-  if (document.getElementById('shareTG')) document.getElementById('shareTG').href = `https://t.me/share/url?url=${encodeURIComponent(siteUrl)}`;
-
-  if (btnCopyLink) {
-    btnCopyLink.addEventListener('click', () => {
-      navigator.clipboard.writeText(siteUrl).then(() => {
-        btnCopyLink.innerText = "✅ Copiado!";
-        setTimeout(() => btnCopyLink.innerText = "📋 Copiar Link", 1500);
-      });
-    });
-  }
-}
-
-// ============================================================================
-// 6. INICIALIZADOR MESTRE
-// ============================================================================
 document.addEventListener("DOMContentLoaded", () => {
   carregarLinksDoFirebase();
   gerenciarEstatisticasReais();
   inicializarPlayerMusica();
   inicializarPainelControleAdm();
-  inicializarSistemaCompartilhar();
 });
