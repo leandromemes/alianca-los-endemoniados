@@ -1011,7 +1011,7 @@ select.admin-input option {
 
   .stats-bar { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 2rem; }
 
-  /* BOTÃO FLUTUANTE DE ÁUDIO (NOVO ESTILO) */
+  /* BOTÃO FLUTUANTE DE ÁUDIO ESTILO PERSONALIZADO */
   .music-fab-mobile {
     display: flex;
     align-items: center;
@@ -1021,16 +1021,22 @@ select.admin-input option {
     right: 25px;
     width: 55px;
     height: 55px;
-    background: #0c0c0e; /* Cor escura do site */
-    border: 1px solid var(--border-color);
+    background: #050507; /* Fundo escuro */
+    border: 2px solid var(--primary); /* Borda na cor principal */
     border-radius: 50%;
     color: #fff;
     font-size: 1.2rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    /* Sombra de destaque da logo */
+    box-shadow: 0 0 15px rgba(255, 0, 60, 0.4), 0 4px 10px rgba(0, 0, 0, 0.5);
     z-index: 997;
     cursor: pointer;
     transition: all 0.3s ease;
     animation: floating 3s ease-in-out infinite;
+  }
+
+  .music-fab-mobile:active {
+    transform: scale(0.9);
+    box-shadow: 0 0 5px rgba(255, 0, 60, 0.6);
   }
 
   @keyframes floating {
