@@ -931,7 +931,7 @@ select.admin-input option {
 }
 
 /* ============================================================================
-   13. MEDIA QUERIES E RESPONSIVIDADE (RESTRUTURADO PARA CELULAR)
+   13. MEDIA QUERIES E RESPONSIVIDADE (OTIMIZADO PARA CELULAR)
    ============================================================================ */
 @media (min-width: 992px) {
   .groups-grid {
@@ -979,26 +979,23 @@ select.admin-input option {
     padding: 5px;
   }
 
-  /* GAVETA LATERAL DO MENU (SIDEBAR EM CELULAR) */
+  /* GAVETA LATERAL DO MENU */
   .sidebar-esquerda {
-    transform: translateX(-100%); /* Esconde para fora da tela esquerda */
+    transform: translateX(-100%);
     width: 270px;
     box-shadow: 10px 0 30px rgba(0, 0, 0, 0.8);
   }
 
   .sidebar-esquerda.open {
-    transform: translateX(0); /* Desliza para dentro da tela */
+    transform: translateX(0);
   }
 
-  /* AJUSTE DO TAMANHO DO TÍTULO E HERO PRINCIPAL NO CELULAR */
   .page-wrap {
     margin-left: 0;
-    padding: 75px 1rem 1.5rem 1rem; /* Espaço extra no topo para o mobile-header */
+    padding: 75px 1rem 1.5rem 1rem;
   }
 
-  .site-header {
-    display: none; /* Oculta o header do desktop */
-  }
+  .site-header { display: none; }
 
   .hero-profile {
     flex-direction: column;
@@ -1006,68 +1003,42 @@ select.admin-input option {
     gap: 1.25rem;
   }
 
-  .hero-name {
-    font-size: 1.8rem; /* Reduzido de 2.4rem para caber perfeitamente sem quebrar */
-    letter-spacing: 0px;
-  }
+  .hero-name { font-size: 1.8rem; letter-spacing: 0px; }
 
-  .hero-info {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+  .hero-social { justify-content: center; flex-wrap: wrap; }
 
-  .hero-social {
-    justify-content: center;
-    flex-wrap: wrap;
-  }
+  .share-dropdown-menu { left: 50%; transform: translateX(-50%); }
 
-  .share-dropdown-menu {
-    left: 50%;
-    transform: translateX(-50%); /* Centraliza o menu suspenso em telas menores */
-  }
+  .stats-bar { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 2rem; }
 
-  .stats-bar {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-    margin-bottom: 2rem;
-  }
-
-  .stat-card {
-    padding: 0.75rem;
-  }
-
-  .stat-value {
-    font-size: 1.3rem;
-  }
-
-  /* BOTÃO FLUTUANTE DE ÁUDIO ESTILO ROKKO */
+  /* BOTÃO FLUTUANTE DE ÁUDIO (NOVO ESTILO) */
   .music-fab-mobile {
     display: flex;
     align-items: center;
     justify-content: center;
     position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 48px;
-    height: 48px;
-    background: var(--primary);
-    border: none;
+    bottom: 25px;
+    right: 25px;
+    width: 55px;
+    height: 55px;
+    background: #0c0c0e; /* Cor escura do site */
+    border: 1px solid var(--border-color);
     border-radius: 50%;
     color: #fff;
-    font-size: 1.25rem;
-    box-shadow: 0 0 15px rgba(255, 0, 60, 0.6);
+    font-size: 1.2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     z-index: 997;
     cursor: pointer;
-    transition: transform 0.2s active;
+    transition: all 0.3s ease;
+    animation: floating 3s ease-in-out infinite;
   }
 
-  .music-fab-mobile:active {
-    transform: scale(0.9);
+  @keyframes floating {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
   }
 
-  /* Oculta o player interno da sidebar em telas mobile para usar apenas o flutuante */
-  .sidebar-player {
-    display: none !important;
-  }
+  .music-fab-mobile:active { transform: scale(0.9); }
+  .sidebar-player { display: none !important; }
 }

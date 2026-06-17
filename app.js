@@ -2,8 +2,8 @@
 // 1. CONFIGURAÇÕES GLOBAIS E LINKS DO BANCO DE DADOS
 // ============================================================================
 const FIREBASE_URL = "https://cybersoberano-default-rtdb.firebaseio.com";
-const SENHA_ADMIN_SECRETA = "1234"; // Altere aqui para a senha dos seus adms
-const IMGBB_API_KEY = "8bf2a05fe7578df492f6bdb4f10f9925"; // COLE SUA CHAVE DO IMGBB AQUI!
+const SENHA_ADMIN_SECRETA = "01234"; 
+const IMGBB_API_KEY = "8bf2a05fe7578df492f6bdb4f10f9925"; 
 
 // FUNÇÃO PARA CRIAR CARD HTML
 function criarCardHtml(id, item) {
@@ -51,7 +51,6 @@ function carregarLinksDoFirebase() {
       }
 
       let totalContador = 0;
-
       Object.keys(dados).forEach(id => {
         const item = dados[id];
         const cardHtml = criarCardHtml(id, item);
@@ -66,7 +65,6 @@ function carregarLinksDoFirebase() {
 
       const totalTxt = document.getElementById("count-total");
       if (totalTxt) totalTxt.innerText = totalContador;
-
       verificarStatusPainelAdm();
     })
     .catch(err => console.error("Erro ao puxar dados do Firebase:", err));
@@ -125,29 +123,40 @@ function gerenciarEstatisticasReais() {
 }
 
 // ============================================================================
-// 3. PLAYER DE ÁUDIO E CONTROLE DE INTRODUÇÃO
+// 3. PLAYER DE ÁUDIO E CONTROLE DE INTRODUÇÃO (ATUALIZADO)
 // ============================================================================
 function inicializarPlayerMusica() {
   const audio = document.getElementById("musicAudio");
   const btnManual = document.getElementById("musicBtn");
+  const btnMobile = document.getElementById("musicBtnMobile");
   const disco = document.getElementById("playerDisco");
   const statusTexto = document.getElementById("playerStatus");
-  
+  const fabIcon = document.getElementById("fabIcon");
   const introOverlay = document.getElementById("introOverlay");
   const btnEntrarSite = document.getElementById("btnEntrarSite");
 
   if (!btnEntrarSite || !introOverlay) return;
 
   function atualizarVisualPlayer(isTocando) {
-    if (!disco || !statusTexto) return;
-    if (isTocando) {
-      disco.classList.add("playing");
-      statusTexto.innerText = "Tocando";
-      statusTexto.style.color = "#00e676";
-    } else {
-      disco.classList.remove("playing");
-      statusTexto.innerText = "Pausado";
-      statusTexto.style.color = "";
+    if (disco && statusTexto) {
+      if (isTocando) {
+        disco.classList.add("playing");
+        statusTexto.innerText = "Tocando";
+        statusTexto.style.color = "#00e676";
+      } else {
+        disco.classList.remove("playing");
+        statusTexto.innerText = "Pausado";
+        statusTexto.style.color = "";
+      }
+    }
+    if (btnMobile) {
+      if (isTocando) {
+        btnMobile.classList.add("playing");
+        if (fabIcon) fabIcon.innerText = "⏸️"; 
+      } else {
+        btnMobile.classList.remove("playing");
+        if (fabIcon) fabIcon.innerText = "🎵";
+      }
     }
   }
 
@@ -157,26 +166,27 @@ function inicializarPlayerMusica() {
       audio.play()
         .then(() => atualizarVisualPlayer(true))
         .catch(err => {
-          console.log("Áudio bloqueado preliminarmente.", err);
+          console.log("Áudio bloqueado:", err);
           atualizarVisualPlayer(false);
         });
     }
   };
 
-  if (btnManual && audio) {
-    btnManual.onclick = function() {
-      if (audio.paused) {
-        audio.play().then(() => atualizarVisualPlayer(true)).catch(() => {});
-      } else {
-        audio.pause();
-        atualizarVisualPlayer(false);
-      }
-    };
-  }
+  const togglePlay = () => {
+    if (audio.paused) {
+      audio.play().then(() => atualizarVisualPlayer(true)).catch(() => {});
+    } else {
+      audio.pause();
+      atualizarVisualPlayer(false);
+    }
+  };
+
+  if (btnManual) btnManual.onclick = togglePlay;
+  if (btnMobile) btnMobile.onclick = togglePlay;
 }
 
 // ============================================================================
-// 4. ENGINE DO PAINEL ADMINISTRATIVO (CONVERTIDO PARA UPLOAD DIRECT IMGBB)
+// 4. ENGINE DO PAINEL ADMINISTRATIVO
 // ============================================================================
 function inicializarPainelControleAdm() {
   const formLogin = document.getElementById("formLoginAdm");
@@ -194,9 +204,9 @@ function inicializarPainelControleAdm() {
         if (areaPainel) areaPainel.style.display = "block";
         formLogin.style.display = "none";
         verificarStatusPainelAdm();
-        alert("Acesso autorizado! Upload de arquivos e gerenciador ativo.");
+        alert("Acesso autorizado!");
       } else {
-        alert("Senha incorreta! Tente novamente.");
+        alert("Senha incorreta!");
       }
     });
   }
@@ -204,88 +214,42 @@ function inicializarPainelControleAdm() {
   if (formCadastro) {
     formCadastro.addEventListener("submit", (e) => {
       e.preventDefault();
-
-      if (localStorage.getItem("adm_logado") !== "true") {
-        alert("Sua sessão expirou. Faça login novamente.");
-        return;
-      }
-
-      if (IMGBB_API_KEY === "SUA_CHAVE_IMGBB_AQUI" || !IMGBB_API_KEY) {
-        alert("Erro Técnico: Você precisa inserir sua API KEY do ImgBB no código do app.js para fazer uploads!");
-        return;
-      }
+      if (localStorage.getItem("adm_logado") !== "true") return;
 
       const inputArquivo = document.getElementById("admImgGrupo");
-      if (!inputArquivo || inputArquivo.files.length === 0) {
-        alert("Selecione uma imagem da sua galeria primeiro!");
-        return;
-      }
-
-      if (btnPublicar) {
-        btnPublicar.innerText = "ENVIANDO IMAGEM...";
-        btnPublicar.disabled = true;
-      }
-
       const imagemSelecionada = inputArquivo.files[0];
       const formData = new FormData();
       formData.append("image", imagemSelecionada);
 
-      // 1. EFETUA O UPLOAD DA IMAGEM DA GALERIA PARA O SERVIDOR IMGBB
-      fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-        method: "POST",
-        body: formData
-      })
+      btnPublicar.innerText = "ENVIANDO...";
+      btnPublicar.disabled = true;
+
+      fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData })
       .then(res => res.json())
       .then(resultadoUpload => {
-        if (!resultadoUpload.success) {
-          throw new Error("Falha no servidor ImgBB");
-        }
-
-        const linkImagemGerado = resultadoUpload.data.url;
-
-        // 2. CONSTRÓI O OBJETO COM O LINK DA IMAGEM CONVERTIDO E SALVA NO FIREBASE
         const novoLinkItem = {
           nome: document.getElementById("admNomeGrupo").value,
           link: document.getElementById("admLinkGrupo").value,
-          imagem: linkImagemGerado,
+          imagem: resultadoUpload.data.url,
           tipo: document.getElementById("admSessaoGrupo").value
         };
-
-        return fetch(`${FIREBASE_URL}/links.json`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(novoLinkItem)
-        });
+        return fetch(`${FIREBASE_URL}/links.json`, { method: "POST", body: JSON.stringify(novoLinkItem) });
       })
       .then(() => {
-        alert("Sucesso absoluto! Imagem hospedada e link publicado com sucesso!");
+        alert("Sucesso!");
         formCadastro.reset();
         carregarLinksDoFirebase();
       })
-      .catch(err => {
-        console.error("Erro no processamento:", err);
-        alert("Erro ao fazer o upload da imagem. Certifique-se de que configurou a API Key do ImgBB corretamente.");
-      })
-      .finally(() => {
-        if (btnPublicar) {
-          btnPublicar.innerText = "PUBLICAR NO SITE";
-          btnPublicar.disabled = false;
-        }
-      });
+      .catch(err => { alert("Erro no envio."); console.error(err); })
+      .finally(() => { btnPublicar.innerText = "PUBLICAR NO SITE"; btnPublicar.disabled = false; });
     });
   }
 }
 
 function removerLinkDoFirebase(id) {
-  if (localStorage.getItem("adm_logado") !== "true") return;
-  
-  if (confirm("Deseja realmente excluir permanentemente este grupo/canal da plataforma?")) {
+  if (confirm("Deseja excluir?")) {
     fetch(`${FIREBASE_URL}/links/${id}.json`, { method: "DELETE" })
-      .then(() => {
-        alert("Link deletado da base de dados com sucesso!");
-        carregarLinksDoFirebase();
-      })
-      .catch(err => console.error("Erro ao remover item:", err));
+      .then(() => carregarLinksDoFirebase());
   }
 }
 
@@ -298,9 +262,6 @@ function verificarStatusPainelAdm() {
     if (areaPainel) areaPainel.style.display = "block";
     if (formLogin) formLogin.style.display = "none";
     botoesDeletar.forEach(btn => btn.style.display = "block");
-  } else {
-    if (areaPainel) areaPainel.style.display = "none";
-    botoesDeletar.forEach(btn => btn.style.display = "none");
   }
 }
 
@@ -311,45 +272,30 @@ function inicializarSistemaCompartilhar() {
   const btnShareTrigger = document.getElementById('btnShareTrigger');
   const shareMenu = document.getElementById('shareMenu');
   const btnCopyLink = document.getElementById('btnCopyLink');
-  const shareWA = document.getElementById('shareWA');
-  const shareTG = document.getElementById('shareTG');
-
-  if (!btnShareTrigger || !shareMenu) return;
-
-  btnShareTrigger.addEventListener('click', (e) => {
-    e.stopPropagation();
-    shareMenu.classList.toggle('show');
-  });
+  
+  if (btnShareTrigger) {
+    btnShareTrigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      shareMenu.classList.toggle('show');
+    });
+  }
 
   const siteUrl = window.location.href;
-  const shareText = encodeURIComponent(`🔥 Acesse a Aliança Oficial Los Endemoniados! Todos os nossos grupos e canais em um só lugar:\n\n${siteUrl}`);
-
-  if (shareWA) shareWA.href = `https://api.whatsapp.com/send?text=${shareText}`;
-  if (shareTG) shareTG.href = `https://t.me/share/url?url=${encodeURIComponent(siteUrl)}&text=${encodeURIComponent('🔥 Acesse a Aliança Oficial Los Endemoniados!')}`;
+  if (document.getElementById('shareWA')) document.getElementById('shareWA').href = `https://api.whatsapp.com/send?text=${encodeURIComponent(siteUrl)}`;
+  if (document.getElementById('shareTG')) document.getElementById('shareTG').href = `https://t.me/share/url?url=${encodeURIComponent(siteUrl)}`;
 
   if (btnCopyLink) {
     btnCopyLink.addEventListener('click', () => {
       navigator.clipboard.writeText(siteUrl).then(() => {
-        const originalText = btnCopyLink.innerText;
         btnCopyLink.innerText = "✅ Copiado!";
-        btnCopyLink.style.color = "#00e676";
-        
-        setTimeout(() => {
-          btnCopyLink.innerText = originalText;
-          btnCopyLink.style.color = "";
-          shareMenu.classList.remove('show');
-        }, 1500);
-      }).catch(err => console.error('Erro ao copiar link:', err));
+        setTimeout(() => btnCopyLink.innerText = "📋 Copiar Link", 1500);
+      });
     });
   }
-
-  document.addEventListener('click', () => {
-    shareMenu.classList.remove('show');
-  });
 }
 
 // ============================================================================
-// 6. INICIALIZADOR MESTRE DO DOM
+// 6. INICIALIZADOR MESTRE
 // ============================================================================
 document.addEventListener("DOMContentLoaded", () => {
   carregarLinksDoFirebase();
