@@ -1049,43 +1049,36 @@ select.admin-input option {
   .sidebar-player { display: none !important; }
 }
 
-/* --- CORREÇÃO DE LARGURA E CARROSSEL --- */
+/* --- CSS DE TRAVAMENTO TOTAL (Substitua as versões anteriores) --- */
 
-/* Garante que o container tenha limite e permita scroll */
+/* 1. Container de rolagem pai */
 .carrossel-container {
     width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
-    padding-bottom: 15px; /* Espaço para o scroll */
-    white-space: nowrap;
-    scrollbar-width: thin; /* Firefox */
+    padding: 10px 0;
+    -webkit-overflow-scrolling: touch; /* Suaviza no mobile */
 }
 
-/* Otimização do grid para não espremer os cards */
+/* 2. O Grid vira um flex imutável */
 .groups-grid {
-    display: flex;
-    gap: 1.25rem;
-    flex-wrap: nowrap; /* Impede que quebre a linha */
-    width: max-content; /* O grid terá exatamente a largura dos cards somados */
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 15px !important;
+    width: max-content !important; /* Força o pai a ter a largura exata dos cards */
 }
 
-/* Garante que o card tenha tamanho fixo e nunca mude */
+/* 3. O Card com largura e crescimento proibidos */
 .group-card {
-    flex: 0 0 220px; /* Tamanho fixo de 220px, nunca encolhe, nunca cresce */
-    width: 220px;
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.2s;
+    min-width: 220px !important; /* Garante que nunca seja menor que 220px */
+    width: 220px !important;
+    flex: 0 0 220px !important; /* Proíbe encolher ou esticar */
+    height: auto;
 }
 
-/* Evita que o site todo fique pequeno no mobile */
-@media (max-width: 768px) {
-    .groups-grid {
-        padding-left: 1rem;
-        padding-right: 1rem;
-    }
+/* 4. Segurança extra para o container da página não estourar */
+.page-wrap {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden; /* Corta qualquer coisa que tente vazar lateralmente */
 }
