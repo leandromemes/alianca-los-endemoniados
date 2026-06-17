@@ -1049,22 +1049,43 @@ select.admin-input option {
   .sidebar-player { display: none !important; }
 }
 
-/* --- CORREÇÃO FINAL DE LARGURA --- */
+/* --- CORREÇÃO DE LARGURA E CARROSSEL --- */
+
+/* Garante que o container tenha limite e permita scroll */
 .carrossel-container {
-    max-width: 100%;
-    overflow-x: auto !important;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 15px; /* Espaço para o scroll */
     white-space: nowrap;
+    scrollbar-width: thin; /* Firefox */
 }
 
+/* Otimização do grid para não espremer os cards */
 .groups-grid {
-    display: flex !important; /* Força o flex mesmo em desktop */
-    flex-wrap: nowrap !important;
+    display: flex;
     gap: 1.25rem;
-    width: max-content; /* Impede que o grid estique */
+    flex-wrap: nowrap; /* Impede que quebre a linha */
+    width: max-content; /* O grid terá exatamente a largura dos cards somados */
 }
 
-/* Opcional: Garante que nada saia da tela */
-body {
-    overflow-x: hidden !important;
-    width: 100vw;
+/* Garante que o card tenha tamanho fixo e nunca mude */
+.group-card {
+    flex: 0 0 220px; /* Tamanho fixo de 220px, nunca encolhe, nunca cresce */
+    width: 220px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s;
+}
+
+/* Evita que o site todo fique pequeno no mobile */
+@media (max-width: 768px) {
+    .groups-grid {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
 }
