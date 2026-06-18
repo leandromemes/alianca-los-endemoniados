@@ -65,12 +65,14 @@ function carregarLinksDoFirebase() {
 }
 
 // ============================================================================
-// 2. SISTEMA DE CONTROLE DE VISITANTES REAIS
+// 2. SISTEMA DE CONTROLE DE VISITANTES REAIS (CORRIGIDO)
 // ============================================================================
 function gerenciarEstatisticasReais() {
   const hojeStr = new Date().toISOString().slice(0, 10);
   const idSessaoUnica = Math.random().toString(36).substring(2, 9);
+  const timestamp = Date.now();
 
+  // MANTEMOS A LÓGICA DE VISITAS IGUAL PARA NÃO QUEBRAR O QUE JÁ FUNCIONA
   fetch(`${FIREBASE_URL}/estatisticas/visitas_totais.json`)
     .then(res => res.json())
     .then(total => {
@@ -89,22 +91,38 @@ function gerenciarEstatisticasReais() {
       if (el) el.innerText = novoTotalDia.toLocaleString("pt-BR");
     });
 
+  // SISTEMA ONLINE CORRIGIDO (AUTO-LIMPEZA)
   const refOnline = `${FIREBASE_URL}/online/${idSessaoUnica}.json`;
-  fetch(refOnline, { method: "PUT", body: true });
+  
+  // Envia sinal de que está online a cada 15 segundos
+  const enviarPulso = () => {
+    fetch(refOnline, { method: "PUT", body: JSON.stringify({ lastSeen: Date.now() }) });
+  };
+  
+  enviarPulso();
+  setInterval(enviarPulso, 15000); 
 
-  window.addEventListener("beforeunload", () => {
-    fetch(`${FIREBASE_URL}/online/${idSessaoUnica}.json`, { method: "DELETE", keepalive: true });
-  });
-
+  // Validação: Conta apenas quem deu sinal nos últimos 60 segundos
   setInterval(() => {
     fetch(`${FIREBASE_URL}/online.json`)
       .then(res => res.json())
       .then(data => {
-        const total = data ? Object.keys(data).length : 1;
+        if (!data) return;
+        const agora = Date.now();
+        let ativos = 0;
+        
+        Object.keys(data).forEach(id => {
+          if (agora - data[id].lastSeen > 60000) {
+            fetch(`${FIREBASE_URL}/online/${id}.json`, { method: "DELETE" });
+          } else {
+            ativos++;
+          }
+        });
+        
         const el = document.getElementById("count-online");
-        if (el) el.innerText = total;
+        if (el) el.innerText = ativos;
       });
-  }, 5000);
+  }, 10000);
 }
 
 // ============================================================================
