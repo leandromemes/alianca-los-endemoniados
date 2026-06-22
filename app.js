@@ -1,14 +1,15 @@
-// ============================================================================
+/// ============================================================================
 // 1. CONFIGURAÇÕES GLOBAIS E LINKS DO BANCO DE DADOS
 // ============================================================================
 const FIREBASE_URL = "https://cybersoberano-default-rtdb.firebaseio.com";
-const SENHA_ADMIN_SECRETA = "01234"; 
 const IMGBB_API_KEY = "8bf2a05fe7578df492f6bdb4f10f9925"; 
 
 // FUNÇÃO PARA CRIAR CARD HTML
 function criarCardHtml(id, item) {
   const isVip = item.tipo === "grupo-vip";
   const tagExibicao = item.tipo.replace("-", " ").toUpperCase();
+  const logado = localStorage.getItem("adm_logado") === "true";
+
   return `
     <div class="group-card ${isVip ? 'vip-card' : ''}" data-id="${id}">
       <div class="card-banner">
@@ -21,13 +22,13 @@ function criarCardHtml(id, item) {
         <a href="${item.link}" target="_blank" class="card-botao-entrar">
           ${isVip ? 'ACESSAR VIP' : 'ENTRAR NO LINK'}
         </a>
-        <button class="btn-deletar-card-adm" onclick="removerLinkDoFirebase('${id}')" style="display:none;">EXCLUIR LINK</button>
+        <button class="btn-deletar-card-adm" onclick="removerLinkDoFirebase('${id}')" style="display:${logado ? 'block' : 'none'};">EXCLUIR LINK</button>
       </div>
     </div>
   `;
 }
 
-// BUSCA OS DADOS DO FIREBASE EM TEMPO REAL E ATUALIZA A TELA
+// BUSCA OS DADOS DO FIREBASE E APLICA ANIMAÇÃO DE NOVO GRUPO
 function carregarLinksDoFirebase() {
   fetch(`${FIREBASE_URL}/links.json`)
     .then(res => res.json())
@@ -60,19 +61,29 @@ function carregarLinksDoFirebase() {
       const totalTxt = document.getElementById("count-total");
       if (totalTxt) totalTxt.innerText = totalContador;
       verificarStatusPainelAdm();
+
+      // LÓGICA DA ANIMAÇÃO APÓS CARREGAR
+      const idParaAnimar = localStorage.getItem("idParaAnimar");
+      if (idParaAnimar) {
+        const card = document.querySelector(`[data-id="${idParaAnimar}"]`);
+        if (card) {
+          card.scrollIntoView({ behavior: "smooth", block: "center" });
+          card.classList.add("novo-grupo-destaque");
+          setTimeout(() => card.classList.remove("novo-grupo-destaque"), 4000);
+        }
+        localStorage.removeItem("idParaAnimar");
+      }
     })
     .catch(err => console.error("Erro ao puxar dados do Firebase:", err));
 }
 
 // ============================================================================
-// 2. SISTEMA DE CONTROLE DE VISITANTES REAIS (CORRIGIDO)
+// 2. SISTEMA DE CONTROLE DE VISITANTES REAIS
 // ============================================================================
 function gerenciarEstatisticasReais() {
   const hojeStr = new Date().toISOString().slice(0, 10);
   const idSessaoUnica = Math.random().toString(36).substring(2, 9);
-  const timestamp = Date.now();
 
-  // MANTEMOS A LÓGICA DE VISITAS IGUAL PARA NÃO QUEBRAR O QUE JÁ FUNCIONA
   fetch(`${FIREBASE_URL}/estatisticas/visitas_totais.json`)
     .then(res => res.json())
     .then(total => {
@@ -91,18 +102,11 @@ function gerenciarEstatisticasReais() {
       if (el) el.innerText = novoTotalDia.toLocaleString("pt-BR");
     });
 
-  // SISTEMA ONLINE CORRIGIDO (AUTO-LIMPEZA)
   const refOnline = `${FIREBASE_URL}/online/${idSessaoUnica}.json`;
-  
-  // Envia sinal de que está online a cada 15 segundos
-  const enviarPulso = () => {
-    fetch(refOnline, { method: "PUT", body: JSON.stringify({ lastSeen: Date.now() }) });
-  };
-  
+  const enviarPulso = () => { fetch(refOnline, { method: "PUT", body: JSON.stringify({ lastSeen: Date.now() }) }); };
   enviarPulso();
   setInterval(enviarPulso, 15000); 
 
-  // Validação: Conta apenas quem deu sinal nos últimos 60 segundos
   setInterval(() => {
     fetch(`${FIREBASE_URL}/online.json`)
       .then(res => res.json())
@@ -110,15 +114,11 @@ function gerenciarEstatisticasReais() {
         if (!data) return;
         const agora = Date.now();
         let ativos = 0;
-        
         Object.keys(data).forEach(id => {
           if (agora - data[id].lastSeen > 60000) {
             fetch(`${FIREBASE_URL}/online/${id}.json`, { method: "DELETE" });
-          } else {
-            ativos++;
-          }
+          } else { ativos++; }
         });
-        
         const el = document.getElementById("count-online");
         if (el) el.innerText = ativos;
       });
@@ -126,7 +126,7 @@ function gerenciarEstatisticasReais() {
 }
 
 // ============================================================================
-// 3. PLAYER DE ÁUDIO E CONTROLE DE INTRODUÇÃO (VERSÃO COM ANIMAÇÃO)
+// 3. PLAYER DE ÁUDIO
 // ============================================================================
 function inicializarPlayerMusica() {
   const audio = document.getElementById("musicAudio");
@@ -134,44 +134,26 @@ function inicializarPlayerMusica() {
   const btnMobile = document.getElementById("musicBtnMobile");
   const statusTexto = document.getElementById("playerStatus");
   const fabIcon = document.getElementById("fabIcon");
-  const disco = document.getElementById("playerDisco"); // O elemento da animação
+  const disco = document.getElementById("playerDisco");
   const btnEntrar = document.getElementById("btnEntrarSite");
   const intro = document.getElementById("introOverlay");
 
   const atualizarUI = () => {
     const tocando = !audio.paused;
-    
-    // Atualiza status de texto
     if (statusTexto) {
       statusTexto.innerText = tocando ? "Tocando" : "Pausado";
       statusTexto.style.color = tocando ? "#00e676" : "";
     }
-    
-    // Atualiza ícone do botão mobile
     if (fabIcon) fabIcon.innerText = tocando ? "⏸️" : "🎵";
-
-    // Atualiza a animação do espectro (adiciona/remove classe .playing)
-    if (disco) {
-      if (tocando) {
-        disco.classList.add("playing");
-      } else {
-        disco.classList.remove("playing");
-      }
-    }
+    if (disco) tocando ? disco.classList.add("playing") : disco.classList.remove("playing");
   };
 
   const toggleAudio = () => {
-    if (audio.paused) {
-      audio.play().catch(() => {});
-    } else {
-      audio.pause();
-    }
+    if (audio.paused) { audio.play().catch(() => {}); } else { audio.pause(); }
   };
 
   if (btnDesktop) btnDesktop.onclick = toggleAudio;
   if (btnMobile) btnMobile.onclick = toggleAudio;
-  
-  // Eventos nativos garantem a sincronia total
   audio.onplay = atualizarUI;
   audio.onpause = atualizarUI;
 
@@ -184,7 +166,7 @@ function inicializarPlayerMusica() {
 }
 
 // ============================================================================
-// 4. ENGINE DO PAINEL ADMINISTRATIVO
+// 4. ENGINE DO PAINEL ADMINISTRATIVO (COMPLETA E CORRIGIDA)
 // ============================================================================
 function inicializarPainelControleAdm() {
   const formLogin = document.getElementById("formLoginAdm");
@@ -196,7 +178,10 @@ function inicializarPainelControleAdm() {
     if (document.getElementById("campoSenhaAdm").value === SENHA_ADMIN_SECRETA) {
       localStorage.setItem("adm_logado", "true");
       verificarStatusPainelAdm();
-    } else { alert("Senha incorreta!"); }
+      formLogin.reset();
+    } else { 
+      alert("Senha incorreta!"); 
+    }
   });
 
   formCadastro?.addEventListener("submit", (e) => {
@@ -218,8 +203,27 @@ function inicializarPainelControleAdm() {
       };
       return fetch(`${FIREBASE_URL}/links.json`, { method: "POST", body: JSON.stringify(novo) });
     })
-    .then(() => { alert("Sucesso!"); formCadastro.reset(); carregarLinksDoFirebase(); })
-    .finally(() => { btnPublicar.innerText = "PUBLICAR NO SITE"; btnPublicar.disabled = false; });
+    .then(res => res.json())
+    .then(data => {
+      // Salva o ID para a animação ocorrer após o carregamento
+      localStorage.setItem("idParaAnimar", data.name);
+      
+      // Fecha o modal e limpa o form sem recarregar a página
+      formCadastro.reset();
+      const modal = document.getElementById("modalAdmin");
+      if (modal) modal.style.display = "none";
+      
+      // Recarrega os dados e aplica a animação instantaneamente
+      carregarLinksDoFirebase();
+    })
+    .catch(err => { 
+        console.error(err);
+        alert("Erro ao publicar: " + err); 
+    })
+    .finally(() => { 
+        btnPublicar.innerText = "PUBLICAR NO SITE"; 
+        btnPublicar.disabled = false; 
+    });
   });
 }
 
@@ -259,9 +263,6 @@ function inicializarSistemaCompartilhar() {
   });
 }
 
-// ============================================================================
-// 6. INICIALIZADOR MESTRE
-// ============================================================================
 document.addEventListener("DOMContentLoaded", () => {
   carregarLinksDoFirebase();
   gerenciarEstatisticasReais();

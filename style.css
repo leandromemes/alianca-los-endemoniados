@@ -1125,3 +1125,15 @@ select.admin-input option {
   border-top: 1px solid #333;
   font-size: 0.9rem;
 }
+
+/* Efeito de destaque para novo grupo publicado */
+@keyframes aura-destaque {
+  0% { box-shadow: 0 0 0px #00e676; }
+  50% { box-shadow: 0 0 30px #00e676; }
+  100% { box-shadow: 0 0 0px #00e676; }
+}
+
+.novo-grupo-destaque {
+  animation: aura-destaque 2s ease-out;
+  border: 2px solid #00e676 !important;
+}
