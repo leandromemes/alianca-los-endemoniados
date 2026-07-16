@@ -173,16 +173,35 @@ function inicializarPainelControleAdm() {
   const formCadastro = document.getElementById("formCadastroLink");
   const btnPublicar = document.getElementById("btnPublicarLink");
 
-  formLogin?.addEventListener("submit", (e) => {
-    e.preventDefault();
-    if (document.getElementById("campoSenhaAdm").value === SENHA_ADMIN_SECRETA) {
+formLogin?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const senhaDigitada = document.getElementById("campoSenhaAdm").value;
+  const btnEntrar = formLogin.querySelector("button[type='submit']");
+
+  if (btnEntrar) { btnEntrar.disabled = true; btnEntrar.innerText = "Verificando…"; }
+
+  try {
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: senhaDigitada })
+    });
+    const data = await res.json();
+
+    if (data.success) {
       localStorage.setItem("adm_logado", "true");
       verificarStatusPainelAdm();
       formLogin.reset();
-    } else { 
-      alert("Senha incorreta!"); 
+    } else {
+      alert("Senha incorreta!");
     }
-  });
+  } catch (err) {
+    console.error(err);
+    alert("Erro ao verificar senha. Tente novamente.");
+  } finally {
+    if (btnEntrar) { btnEntrar.disabled = false; btnEntrar.innerText = "Entrar"; }
+  }
+});
 
   formCadastro?.addEventListener("submit", (e) => {
     e.preventDefault();
