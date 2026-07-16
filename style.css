@@ -1137,3 +1137,40 @@ select.admin-input option {
   animation: aura-destaque 2s ease-out;
   border: 2px solid #00e676 !important;
 }
+
+/* ---------- Espaçamento entre os cards de staff (dono + adms) ---------- */
+.staff-layout-quadrado {
+  gap: 1rem;
+  flex-wrap: wrap; /* em telas pequenas, os cards quebram linha em vez de estourar */
+}
+
+/* ---------- Variante de cor para o card de ADM (azul, pra diferenciar do dourado do dono) ---------- */
+.owner-card-square-adm {
+  border-color: rgba(0, 153, 255, 0.35);
+  box-shadow: 0 0 15px rgba(0, 153, 255, 0.05);
+}
+
+.owner-card-square-adm:hover {
+  border-color: #0099ff;
+  box-shadow: 0 0 20px rgba(0, 153, 255, 0.25);
+}
+
+.owner-card-square-adm .owner-square-badge {
+  color: #0099ff;
+}
+
+.owner-card-square-adm .owner-square-avatar img {
+  border-color: #0099ff;
+}
+
+.owner-card-square-adm .owner-square-btn {
+  background: rgba(0, 153, 255, 0.08);
+  border-color: rgba(0, 153, 255, 0.25);
+}
+
+.owner-card-square-adm:hover .owner-square-btn {
+  background: #0099ff;
+  border-color: #0099ff;
+  color: #000;
+  box-shadow: 0 0 8px rgba(0, 153, 255, 0.4);
+}
