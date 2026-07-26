@@ -1,3 +1,16 @@
+// Decodifica entidades HTML (ex: &amp; , &#x3c2; , &#39;) para texto normal
+function decodeHtmlEntities(text) {
+  if (!text) return text;
+  return text
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(parseInt(dec, 10)))
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Método não permitido' });
@@ -23,8 +36,9 @@ export default async function handler(req, res) {
       return match ? match[1] : null;
     };
 
-    const nome = getMeta('og:title');
-    let imagem = getMeta('og:image');
+    // Decodifica logo ao extrair, pra tudo daqui pra frente já vir limpo
+    const nome = decodeHtmlEntities(getMeta('og:title'));
+    let imagem = decodeHtmlEntities(getMeta('og:image'));
 
     if (!nome) {
       return res.status(404).json({ error: 'Não foi possível encontrar os dados. Link inválido ou expirado.' });
