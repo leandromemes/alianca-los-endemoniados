@@ -469,17 +469,80 @@ body {
 .carrossel-container {
   width: 100%;
   overflow-x: auto;
-  scrollbar-width: none;
+  cursor: grab;
 }
 
+/* Barra de rolagem fina e discreta, no estilo do site (em vez de escondida) */
 .carrossel-container::-webkit-scrollbar {
-  display: none;
+  height: 6px;
+}
+.carrossel-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+}
+.carrossel-container::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 10px;
+}
+.carrossel-container {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) rgba(255, 255, 255, 0.03);
+}
+
+.carrossel-container.arrastando {
+  cursor: grabbing;
+  user-select: none;
+  scroll-behavior: auto;
 }
 
 .groups-grid {
   display: flex;
   gap: 1.25rem;
   padding-bottom: 0.5rem;
+}
+
+/* ---------- Wrapper + setas de navegação do carrossel (injetadas via JS) ---------- */
+.carrossel-wrapper {
+  position: relative;
+}
+
+.seta-carrossel {
+  position: absolute;
+  top: 45%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(5, 5, 7, 0.85);
+  border: 1px solid var(--primary);
+  color: #fff;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+  backdrop-filter: blur(4px);
+}
+
+.seta-carrossel:hover {
+  background: var(--primary);
+  box-shadow: 0 0 12px rgba(255, 0, 60, 0.5);
+}
+
+.seta-esquerda { left: -8px; }
+.seta-direita { right: -8px; }
+
+/* Some as setas quando não há mais o que rolar naquele sentido */
+.seta-carrossel.seta-desabilitada {
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+/* Some as setas quando os cards já cabem inteiros na tela (nada pra rolar) */
+.carrossel-wrapper.sem-overflow .seta-carrossel {
+  display: none;
 }
 
 .group-card {
@@ -936,17 +999,6 @@ select.admin-input option {
 /* ============================================================================
    13. MEDIA QUERIES E RESPONSIVIDADE (OTIMIZADO PARA CELULAR)
    ============================================================================ */
-@media (min-width: 992px) {
-  .groups-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 1.25rem;
-  }
-  .group-card {
-    flex: initial;
-  }
-}
-
 @media (max-width: 768px) {
   /* TOPO MOBILE FIXO */
   .mobile-header {
@@ -1014,6 +1066,9 @@ select.admin-input option {
 
   .stats-bar { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 2rem; }
 
+  /* No mobile o toque já rola o carrossel naturalmente: some com as setas */
+  .seta-carrossel { display: none !important; }
+
   /* BOTÃO FLUTUANTE DE ÁUDIO ESTILO PERSONALIZADO */
   .music-fab-mobile {
     display: flex;
@@ -1052,7 +1107,7 @@ select.admin-input option {
   .sidebar-player { display: none !important; }
 }
 
-/* --- CSS DE TRAVAMENTO TOTAL (Substitua as versões anteriores) --- */
+/* --- CSS DE TRAVAMENTO TOTAL DO CARROSSEL --- */
 
 /* 1. Container de rolagem pai */
 .carrossel-container {

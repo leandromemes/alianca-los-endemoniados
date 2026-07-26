@@ -41,6 +41,7 @@ function carregarLinksDoFirebase() {
       if (!dados) {
         const totalTxt = document.getElementById("count-total");
         if (totalTxt) totalTxt.innerText = "0";
+        atualizarTodosCarrosseis();
         return;
       }
       let totalContador = 0;
@@ -54,6 +55,8 @@ function carregarLinksDoFirebase() {
       const totalTxt = document.getElementById("count-total");
       if (totalTxt) totalTxt.innerText = totalContador;
       verificarStatusPainelAdm();
+      // Recalcula as setas do carrossel agora que os cards foram inseridos
+      atualizarTodosCarrosseis();
       // LÓGICA DA ANIMAÇÃO APÓS CARREGAR
       const idParaAnimar = localStorage.getItem("idParaAnimar");
       if (idParaAnimar) {
@@ -314,7 +317,108 @@ function inicializarSistemaCompartilhar() {
     });
   });
 }
+// ============================================================================
+// 6. ENGINE DO CARROSSEL (SETAS + ARRASTAR COM MOUSE + RODINHA)
+// ============================================================================
+// Guarda uma função de "atualizar setas" para cada carrossel da página
+let atualizadoresCarrossel = [];
+
+function inicializarSetasCarrossel() {
+  atualizadoresCarrossel = []; // zera caso essa função rode mais de uma vez
+
+  document.querySelectorAll(".carrossel-container").forEach((container) => {
+    // Evita duplicar wrapper/setas se essa função rodar de novo
+    if (container.parentElement.classList.contains("carrossel-wrapper")) return;
+
+    // Cria um wrapper em volta do container pra poder posicionar as setas nas bordas
+    const wrapper = document.createElement("div");
+    wrapper.className = "carrossel-wrapper";
+    container.parentNode.insertBefore(wrapper, container);
+    wrapper.appendChild(container);
+
+    // Cria as duas setas
+    const btnEsq = document.createElement("button");
+    btnEsq.type = "button";
+    btnEsq.className = "seta-carrossel seta-esquerda";
+    btnEsq.innerHTML = "&#10094;";
+    btnEsq.setAttribute("aria-label", "Ver grupos anteriores");
+
+    const btnDir = document.createElement("button");
+    btnDir.type = "button";
+    btnDir.className = "seta-carrossel seta-direita";
+    btnDir.innerHTML = "&#10095;";
+    btnDir.setAttribute("aria-label", "Ver mais grupos");
+
+    wrapper.appendChild(btnEsq);
+    wrapper.appendChild(btnDir);
+
+    const QUANTIDADE_ROLAGEM = 480;
+
+    btnEsq.addEventListener("click", () => {
+      container.scrollBy({ left: -QUANTIDADE_ROLAGEM, behavior: "smooth" });
+    });
+    btnDir.addEventListener("click", () => {
+      container.scrollBy({ left: QUANTIDADE_ROLAGEM, behavior: "smooth" });
+    });
+
+    // Habilita/desabilita e esconde as setas conforme a posição da rolagem
+    const atualizarSetas = () => {
+      const temOverflow = container.scrollWidth > container.clientWidth + 5;
+      wrapper.classList.toggle("sem-overflow", !temOverflow);
+      if (!temOverflow) return;
+
+      const maxScroll = container.scrollWidth - container.clientWidth - 2;
+      btnEsq.classList.toggle("seta-desabilitada", container.scrollLeft <= 0);
+      btnDir.classList.toggle("seta-desabilitada", container.scrollLeft >= maxScroll);
+    };
+
+    container.addEventListener("scroll", atualizarSetas);
+    window.addEventListener("resize", atualizarSetas);
+    atualizadoresCarrossel.push(atualizarSetas);
+
+    // ---- Arrastar com o clique do mouse (estilo "clica e arrasta") ----
+    let arrastando = false;
+    let posInicialX = 0;
+    let scrollInicial = 0;
+
+    container.addEventListener("mousedown", (e) => {
+      arrastando = true;
+      container.classList.add("arrastando");
+      posInicialX = e.pageX - container.offsetLeft;
+      scrollInicial = container.scrollLeft;
+    });
+    container.addEventListener("mouseleave", () => {
+      arrastando = false;
+      container.classList.remove("arrastando");
+    });
+    container.addEventListener("mouseup", () => {
+      arrastando = false;
+      container.classList.remove("arrastando");
+    });
+    container.addEventListener("mousemove", (e) => {
+      if (!arrastando) return;
+      e.preventDefault();
+      const posAtualX = e.pageX - container.offsetLeft;
+      const distancia = (posAtualX - posInicialX) * 1.4;
+      container.scrollLeft = scrollInicial - distancia;
+    });
+
+    // ---- Rodinha do mouse também rola na horizontal ----
+    container.addEventListener("wheel", (e) => {
+      if (e.deltaY === 0) return;
+      e.preventDefault();
+      container.scrollBy({ left: e.deltaY * 1.2, behavior: "auto" });
+    }, { passive: false });
+  });
+}
+
+// Chama a atualização de todas as setas (usado após os cards carregarem do Firebase)
+function atualizarTodosCarrosseis() {
+  atualizadoresCarrossel.forEach((fn) => fn());
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  inicializarSetasCarrossel();
   carregarLinksDoFirebase();
   gerenciarEstatisticasReais();
   inicializarPlayerMusica();
