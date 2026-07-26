@@ -207,7 +207,7 @@
               </div>
               <a href="https://wa.me/5574991940377" target="_blank" class="owner-square-btn">CHAMAR</a>
             </div>
-        
+
             <div class="owner-card-square owner-card-square-adm">
               <span class="owner-square-badge owner-square-badge-adm">ADM</span>
               <div class="owner-square-avatar">
@@ -222,32 +222,32 @@
             </div>
           </div>
         </section>
-        
-        </main>
-        
-        <footer class="site-footer">
-          <div class="footer-container">
-            <div class="footer-col">
-              <h3>LOS ENDEMONIADOS</h3>
-              <p>A maior aliança de grupos. Lealdade, respeito e união em cada link.</p>
-            </div>
-            <div class="footer-col">
-              <h3>NAVEGAÇÃO</h3>
-              <a href="#sec-vips">Grupos VIP</a>
-              <a href="#sec-normais">Grupos Gerais</a>
-              <a href="#sec-canais-wa">Canais WhatsApp</a>
-            </div>
-            <div class="footer-col">
-              <h3>RECURSOS</h3>
-              <a href="https://devsoberano.com/whatsapp-sem-chip" target="_blank">Números virtuais</a>
-              <a href="https://lisosflix.vercel.app" target="_blank">Filmes/Animes gratis</a>
-            </div>
+
+      </main>
+
+      <footer class="site-footer">
+        <div class="footer-container">
+          <div class="footer-col">
+            <h3>LOS ENDEMONIADOS</h3>
+            <p>A maior aliança de grupos. Lealdade, respeito e união em cada link.</p>
           </div>
-      <div class="footer-bottom">
-        <p>&copy; 2026 <strong>Los Endemoniados</strong> | Desenvolvido por ༄ Đev Šoberano ×͜×</p>
-      </div>
-    </footer>
-  </div>
+          <div class="footer-col">
+            <h3>NAVEGAÇÃO</h3>
+            <a href="#sec-vips">Grupos VIP</a>
+            <a href="#sec-normais">Grupos Gerais</a>
+            <a href="#sec-canais-wa">Canais WhatsApp</a>
+          </div>
+          <div class="footer-col">
+            <h3>RECURSOS</h3>
+            <a href="https://devsoberano.com/whatsapp-sem-chip" target="_blank">Números virtuais</a>
+            <a href="https://lisosflix.vercel.app" target="_blank">Filmes/Animes gratis</a>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2026 <strong>Los Endemoniados</strong> | Desenvolvido por ༄ Đev Šoberano ×͜×</p>
+        </div>
+      </footer>
+    </div>
   </div>
 
   <button id="musicBtnMobile" class="music-fab-mobile" aria-label="Play/Pause Música">
@@ -267,13 +267,27 @@
       </form>
       <div id="areaRestritaAdm" style="display: none;">
         <form id="formCadastroLink">
+          <label class="form-label">Link do Grupo/canal</label>
+          <div style="display:flex; gap:8px;">
+            <input type="url" id="admLinkGrupo" class="admin-input" placeholder="ex: https://chat.whatsapp.com/..."
+              required style="flex:1;">
+            <button type="button" id="btnBuscarDados" class="admin-submit-btn"
+              style="width:auto; white-space:nowrap; padding:0 14px; background:#00e676; color:#000; border:none;">🔍
+              Buscar</button>
+          </div>
+
+          <div id="previewBuscaGrupo" style="display:none; text-align:center; margin:10px 0;">
+            <img id="previewImgGrupo" src="" style="width:70px;height:70px;border-radius:50%;object-fit:cover;">
+            <p id="previewNomeGrupo" style="color:#00e676; font-size:0.85rem; margin-top:5px;"></p>
+          </div>
+
+          <input type="hidden" id="admImgGrupoUrl" value="">
+
           <label class="form-label">Nome do Grupo/canal</label>
           <input type="text" id="admNomeGrupo" class="admin-input" placeholder="ex: Los endemoniados" required>
-          <label class="form-label">Link do Grupo/canal</label>
-          <input type="url" id="admLinkGrupo" class="admin-input" placeholder="ex: https://chat.whatsapp.com/..."
-            required>
-          <label class="form-label">Enviar Imagem (Upload)</label>
-          <input type="file" id="admImgGrupo" class="admin-input" accept="image/*" required>
+
+          <label class="form-label">Enviar Imagem (só se quiser trocar a imagem buscada)</label>
+          <input type="file" id="admImgGrupo" class="admin-input" accept="image/*">
           <label class="form-label">Escolha uma Categoria</label>
           <select id="admSessaoGrupo" class="admin-input">
             <option value="grupo-geral">💬 Grupo Parceiros</option>

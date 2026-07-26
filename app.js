@@ -1,15 +1,13 @@
-/// ============================================================================
+// ============================================================================
 // 1. CONFIGURAÇÕES GLOBAIS E LINKS DO BANCO DE DADOS
 // ============================================================================
 const FIREBASE_URL = "https://cybersoberano-default-rtdb.firebaseio.com";
 const IMGBB_API_KEY = "8bf2a05fe7578df492f6bdb4f10f9925"; 
-
 // FUNÇÃO PARA CRIAR CARD HTML
 function criarCardHtml(id, item) {
   const isVip = item.tipo === "grupo-vip";
   const tagExibicao = item.tipo.replace("-", " ").toUpperCase();
   const logado = localStorage.getItem("adm_logado") === "true";
-
   return `
     <div class="group-card ${isVip ? 'vip-card' : ''}" data-id="${id}">
       <div class="card-banner">
@@ -27,7 +25,6 @@ function criarCardHtml(id, item) {
     </div>
   `;
 }
-
 // BUSCA OS DADOS DO FIREBASE E APLICA ANIMAÇÃO DE NOVO GRUPO
 function carregarLinksDoFirebase() {
   fetch(`${FIREBASE_URL}/links.json`)
@@ -40,15 +37,12 @@ function carregarLinksDoFirebase() {
         "tg-grupo": document.getElementById("gradeTelegramGrupos"),
         "tg-canal": document.getElementById("gradeTelegramCanais")
       };
-
       Object.values(containers).forEach(c => { if(c) c.innerHTML = ""; });
-
       if (!dados) {
         const totalTxt = document.getElementById("count-total");
         if (totalTxt) totalTxt.innerText = "0";
         return;
       }
-
       let totalContador = 0;
       Object.keys(dados).forEach(id => {
         const item = dados[id];
@@ -57,11 +51,9 @@ function carregarLinksDoFirebase() {
           totalContador++;
         }
       });
-
       const totalTxt = document.getElementById("count-total");
       if (totalTxt) totalTxt.innerText = totalContador;
       verificarStatusPainelAdm();
-
       // LÓGICA DA ANIMAÇÃO APÓS CARREGAR
       const idParaAnimar = localStorage.getItem("idParaAnimar");
       if (idParaAnimar) {
@@ -76,14 +68,12 @@ function carregarLinksDoFirebase() {
     })
     .catch(err => console.error("Erro ao puxar dados do Firebase:", err));
 }
-
 // ============================================================================
 // 2. SISTEMA DE CONTROLE DE VISITANTES REAIS
 // ============================================================================
 function gerenciarEstatisticasReais() {
   const hojeStr = new Date().toISOString().slice(0, 10);
   const idSessaoUnica = Math.random().toString(36).substring(2, 9);
-
   fetch(`${FIREBASE_URL}/estatisticas/visitas_totais.json`)
     .then(res => res.json())
     .then(total => {
@@ -92,7 +82,6 @@ function gerenciarEstatisticasReais() {
       const el = document.getElementById("count-visitas-total");
       if (el) el.innerText = novoTotal.toLocaleString("pt-BR");
     });
-
   fetch(`${FIREBASE_URL}/estatisticas/dias/${hojeStr}.json`)
     .then(res => res.json())
     .then(totalDia => {
@@ -101,12 +90,10 @@ function gerenciarEstatisticasReais() {
       const el = document.getElementById("count-visitas-hoje");
       if (el) el.innerText = novoTotalDia.toLocaleString("pt-BR");
     });
-
   const refOnline = `${FIREBASE_URL}/online/${idSessaoUnica}.json`;
   const enviarPulso = () => { fetch(refOnline, { method: "PUT", body: JSON.stringify({ lastSeen: Date.now() }) }); };
   enviarPulso();
   setInterval(enviarPulso, 15000); 
-
   setInterval(() => {
     fetch(`${FIREBASE_URL}/online.json`)
       .then(res => res.json())
@@ -124,7 +111,6 @@ function gerenciarEstatisticasReais() {
       });
   }, 10000);
 }
-
 // ============================================================================
 // 3. PLAYER DE ÁUDIO
 // ============================================================================
@@ -137,7 +123,6 @@ function inicializarPlayerMusica() {
   const disco = document.getElementById("playerDisco");
   const btnEntrar = document.getElementById("btnEntrarSite");
   const intro = document.getElementById("introOverlay");
-
   const atualizarUI = () => {
     const tocando = !audio.paused;
     if (statusTexto) {
@@ -147,16 +132,13 @@ function inicializarPlayerMusica() {
     if (fabIcon) fabIcon.innerText = tocando ? "⏸️" : "🎵";
     if (disco) tocando ? disco.classList.add("playing") : disco.classList.remove("playing");
   };
-
   const toggleAudio = () => {
     if (audio.paused) { audio.play().catch(() => {}); } else { audio.pause(); }
   };
-
   if (btnDesktop) btnDesktop.onclick = toggleAudio;
   if (btnMobile) btnMobile.onclick = toggleAudio;
   audio.onplay = atualizarUI;
   audio.onpause = atualizarUI;
-
   if (btnEntrar) {
     btnEntrar.onclick = () => {
       intro.classList.add("ocultar");
@@ -164,7 +146,6 @@ function inicializarPlayerMusica() {
     };
   }
 }
-
 // ============================================================================
 // 4. ENGINE DO PAINEL ADMINISTRATIVO (COMPLETA E CORRIGIDA)
 // ============================================================================
@@ -173,85 +154,138 @@ function inicializarPainelControleAdm() {
   const formCadastro = document.getElementById("formCadastroLink");
   const btnPublicar = document.getElementById("btnPublicarLink");
 
-formLogin?.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const senhaDigitada = document.getElementById("campoSenhaAdm").value;
-  const btnEntrar = formLogin.querySelector("button[type='submit']");
-
-  if (btnEntrar) { btnEntrar.disabled = true; btnEntrar.innerText = "Verificando…"; }
-
-  try {
-    const res = await fetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password: senhaDigitada })
-    });
-    const data = await res.json();
-
-    if (data.success) {
-      localStorage.setItem("adm_logado", "true");
-      verificarStatusPainelAdm();
-      formLogin.reset();
-    } else {
-      alert("Senha incorreta!");
+  formLogin?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const senhaDigitada = document.getElementById("campoSenhaAdm").value;
+    const btnEntrar = formLogin.querySelector("button[type='submit']");
+    if (btnEntrar) { btnEntrar.disabled = true; btnEntrar.innerText = "Verificando…"; }
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: senhaDigitada })
+      });
+      const data = await res.json();
+      if (data.success) {
+        localStorage.setItem("adm_logado", "true");
+        verificarStatusPainelAdm();
+        formLogin.reset();
+      } else {
+        alert("Senha incorreta!");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao verificar senha. Tente novamente.");
+    } finally {
+      if (btnEntrar) { btnEntrar.disabled = false; btnEntrar.innerText = "Entrar"; }
     }
-  } catch (err) {
-    console.error(err);
-    alert("Erro ao verificar senha. Tente novamente.");
-  } finally {
-    if (btnEntrar) { btnEntrar.disabled = false; btnEntrar.innerText = "Entrar"; }
-  }
-});
+  });
 
+  // ---- BOTÃO "BUSCAR" (puxa nome e imagem automaticamente pelo link) ----
+  const btnBuscar = document.getElementById("btnBuscarDados");
+  btnBuscar?.addEventListener("click", async () => {
+    const link = document.getElementById("admLinkGrupo").value.trim();
+    if (!link) { alert("Cole o link do grupo primeiro."); return; }
+
+    btnBuscar.disabled = true;
+    btnBuscar.innerText = "Buscando...";
+
+    try {
+      const res = await fetch(`/api/whatsapp-meta?link=${encodeURIComponent(link)}`);
+      const data = await res.json();
+      if (!res.ok) { alert(data.error || "Não foi possível buscar os dados."); return; }
+
+      document.getElementById("admNomeGrupo").value = data.nome || "";
+      document.getElementById("admImgGrupoUrl").value = data.imagem || "";
+
+      const preview = document.getElementById("previewBuscaGrupo");
+      if (data.imagem && preview) {
+        document.getElementById("previewImgGrupo").src = data.imagem;
+        document.getElementById("previewNomeGrupo").innerText = data.nome;
+        preview.style.display = "block";
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao buscar dados do grupo.");
+    } finally {
+      btnBuscar.disabled = false;
+      btnBuscar.innerText = "🔍 Buscar";
+    }
+  });
+
+  // ---- PUBLICAR (usa imagem buscada automaticamente OU upload manual) ----
   formCadastro?.addEventListener("submit", (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append("image", document.getElementById("admImgGrupo").files[0]);
+    const arquivoImagem = document.getElementById("admImgGrupo").files[0];
+    const imagemUrlAutomatica = document.getElementById("admImgGrupoUrl").value;
 
     btnPublicar.innerText = "ENVIANDO...";
     btnPublicar.disabled = true;
 
-    fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData })
-    .then(res => res.json())
-    .then(r => {
+    const publicar = (urlImagemFinal) => {
       const novo = {
         nome: document.getElementById("admNomeGrupo").value,
         link: document.getElementById("admLinkGrupo").value,
-        imagem: r.data.url,
+        imagem: urlImagemFinal,
         tipo: document.getElementById("admSessaoGrupo").value
       };
-      return fetch(`${FIREBASE_URL}/links.json`, { method: "POST", body: JSON.stringify(novo) });
-    })
-    .then(res => res.json())
-    .then(data => {
-      // Salva o ID para a animação ocorrer após o carregamento
-      localStorage.setItem("idParaAnimar", data.name);
-      
-      // Fecha o modal e limpa o form sem recarregar a página
-      formCadastro.reset();
-      const modal = document.getElementById("modalAdmin");
-      if (modal) modal.style.display = "none";
-      
-      // Recarrega os dados e aplica a animação instantaneamente
-      carregarLinksDoFirebase();
-    })
-    .catch(err => { 
-        console.error(err);
-        alert("Erro ao publicar: " + err); 
-    })
-    .finally(() => { 
-        btnPublicar.innerText = "PUBLICAR NO SITE"; 
-        btnPublicar.disabled = false; 
-    });
+      return fetch(`${FIREBASE_URL}/links.json`, { method: "POST", body: JSON.stringify(novo) })
+        .then(res => res.json())
+        .then(data => {
+          // Salva o ID para a animação ocorrer após o carregamento
+          localStorage.setItem("idParaAnimar", data.name);
+
+          // Fecha o modal e limpa o form sem recarregar a página
+          formCadastro.reset();
+          document.getElementById("admImgGrupoUrl").value = "";
+          const preview = document.getElementById("previewBuscaGrupo");
+          if (preview) preview.style.display = "none";
+          const modal = document.getElementById("modalAdmin");
+          if (modal) modal.style.display = "none";
+
+          // Recarrega os dados e aplica a animação instantaneamente
+          carregarLinksDoFirebase();
+        });
+    };
+
+    if (arquivoImagem) {
+      // Se o adm escolheu um arquivo manualmente, ele tem prioridade
+      const formData = new FormData();
+      formData.append("image", arquivoImagem);
+      fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData })
+        .then(res => res.json())
+        .then(r => publicar(r.data.url))
+        .catch(err => {
+          console.error(err);
+          alert("Erro ao publicar: " + err);
+        })
+        .finally(() => {
+          btnPublicar.innerText = "PUBLICAR NO SITE";
+          btnPublicar.disabled = false;
+        });
+    } else if (imagemUrlAutomatica) {
+      // Usa a imagem que veio da busca automática
+      publicar(imagemUrlAutomatica)
+        .catch(err => {
+          console.error(err);
+          alert("Erro ao publicar: " + err);
+        })
+        .finally(() => {
+          btnPublicar.innerText = "PUBLICAR NO SITE";
+          btnPublicar.disabled = false;
+        });
+    } else {
+      alert("Cole o link e clique em Buscar, ou selecione uma imagem manualmente.");
+      btnPublicar.innerText = "PUBLICAR NO SITE";
+      btnPublicar.disabled = false;
+    }
   });
 }
-
 function removerLinkDoFirebase(id) {
   if (confirm("Excluir este link?")) {
     fetch(`${FIREBASE_URL}/links/${id}.json`, { method: "DELETE" }).then(() => carregarLinksDoFirebase());
   }
 }
-
 function verificarStatusPainelAdm() {
   const logado = localStorage.getItem("adm_logado") === "true";
   document.querySelectorAll(".btn-deletar-card-adm").forEach(b => b.style.display = logado ? "block" : "none");
@@ -260,7 +294,6 @@ function verificarStatusPainelAdm() {
   if (area) area.style.display = logado ? "block" : "none";
   if (login) login.style.display = logado ? "none" : "block";
 }
-
 // ============================================================================
 // 5. ENGINE DO SISTEMA DE COMPARTILHAMENTO
 // ============================================================================
@@ -281,7 +314,6 @@ function inicializarSistemaCompartilhar() {
     });
   });
 }
-
 document.addEventListener("DOMContentLoaded", () => {
   carregarLinksDoFirebase();
   gerenciarEstatisticasReais();
