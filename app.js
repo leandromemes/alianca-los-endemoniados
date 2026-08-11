@@ -3,6 +3,7 @@
 // ============================================================================
 const FIREBASE_URL = "https://cybersoberano-default-rtdb.firebaseio.com";
 const IMGBB_API_KEY = "8bf2a05fe7578df492f6bdb4f10f9925"; 
+
 // FUNÇÃO PARA CRIAR CARD HTML
 function criarCardHtml(id, item) {
   const isVip = item.tipo === "grupo-vip";
@@ -11,7 +12,7 @@ function criarCardHtml(id, item) {
   return `
     <div class="group-card ${isVip ? 'vip-card' : ''}" data-id="${id}">
       <div class="card-banner">
-        <img src="${item.imagem}" alt="${item.nome}" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400';">
+        <img src="${item.imagem}" alt="${item.nome}" draggable="false" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400';">
         ${isVip ? '<span class="card-badge-vip">★ VIP</span>' : ''}
         <span class="card-badge-categoria">${tagExibicao}</span>
       </div>
@@ -25,6 +26,7 @@ function criarCardHtml(id, item) {
     </div>
   `;
 }
+
 // BUSCA OS DADOS DO FIREBASE E APLICA ANIMAÇÃO DE NOVO GRUPO
 function carregarLinksDoFirebase() {
   fetch(`${FIREBASE_URL}/links.json`)
@@ -71,6 +73,7 @@ function carregarLinksDoFirebase() {
     })
     .catch(err => console.error("Erro ao puxar dados do Firebase:", err));
 }
+
 // ============================================================================
 // 2. SISTEMA DE CONTROLE DE VISITANTES REAIS
 // ============================================================================
@@ -114,6 +117,7 @@ function gerenciarEstatisticasReais() {
       });
   }, 10000);
 }
+
 // ============================================================================
 // 3. PLAYER DE ÁUDIO
 // ============================================================================
@@ -149,6 +153,7 @@ function inicializarPlayerMusica() {
     };
   }
 }
+
 // ============================================================================
 // 4. ENGINE DO PAINEL ADMINISTRATIVO (COMPLETA E CORRIGIDA)
 // ============================================================================
@@ -284,11 +289,13 @@ function inicializarPainelControleAdm() {
     }
   });
 }
+
 function removerLinkDoFirebase(id) {
   if (confirm("Excluir este link?")) {
     fetch(`${FIREBASE_URL}/links/${id}.json`, { method: "DELETE" }).then(() => carregarLinksDoFirebase());
   }
 }
+
 function verificarStatusPainelAdm() {
   const logado = localStorage.getItem("adm_logado") === "true";
   document.querySelectorAll(".btn-deletar-card-adm").forEach(b => b.style.display = logado ? "block" : "none");
@@ -297,6 +304,7 @@ function verificarStatusPainelAdm() {
   if (area) area.style.display = logado ? "block" : "none";
   if (login) login.style.display = logado ? "none" : "block";
 }
+
 // ============================================================================
 // 5. ENGINE DO SISTEMA DE COMPARTILHAMENTO
 // ============================================================================
@@ -317,8 +325,18 @@ function inicializarSistemaCompartilhar() {
     });
   });
 }
+
+// Fecha o dropdown de compartilhar ao clicar fora dele
+document.addEventListener("click", (e) => {
+  const menu = document.getElementById('shareMenu');
+  const trigger = document.getElementById('btnShareTrigger');
+  if (menu && menu.classList.contains('show') && !menu.contains(e.target) && e.target !== trigger) {
+    menu.classList.remove('show');
+  }
+});
+
 // ============================================================================
-// 6. ENGINE DO CARROSSEL (SETAS + ARRASTAR COM MOUSE + RODINHA)
+// 6. ENGINE DO CARROSSEL (SETAS + ARRASTAR SÓ NA ÁREA VAZIA + SCROLL NORMAL)
 // ============================================================================
 // Guarda uma função de "atualizar setas" para cada carrossel da página
 let atualizadoresCarrossel = [];
@@ -361,10 +379,16 @@ function inicializarSetasCarrossel() {
       container.scrollBy({ left: QUANTIDADE_ROLAGEM, behavior: "smooth" });
     });
 
-    // Habilita/desabilita e esconde as setas conforme a posição da rolagem
+    // Impede o navegador de tentar "arrastar a imagem" nativamente
+    // (isso é o que causava a mãozinha travada mesmo fora dos cards)
+    container.querySelectorAll("img").forEach(img => img.setAttribute("draggable", "false"));
+
+    // Habilita/desabilita e esconde as setas conforme a posição da rolagem.
+    // Também só libera a classe "pode-arrastar" (cursor grab) quando há overflow de verdade.
     const atualizarSetas = () => {
       const temOverflow = container.scrollWidth > container.clientWidth + 5;
       wrapper.classList.toggle("sem-overflow", !temOverflow);
+      container.classList.toggle("pode-arrastar", temOverflow);
       if (!temOverflow) return;
 
       const maxScroll = container.scrollWidth - container.clientWidth - 2;
@@ -376,12 +400,14 @@ function inicializarSetasCarrossel() {
     window.addEventListener("resize", atualizarSetas);
     atualizadoresCarrossel.push(atualizarSetas);
 
-    // ---- Arrastar com o clique do mouse (estilo "clica e arrasta") ----
+    // ---- Arrastar com o clique do mouse — só inicia se o clique começar
+    //      na área vazia do carrossel (fora de qualquer .group-card) ----
     let arrastando = false;
     let posInicialX = 0;
     let scrollInicial = 0;
 
     container.addEventListener("mousedown", (e) => {
+      if (e.target.closest(".group-card")) return; // clique veio de dentro de um card: não arrasta
       arrastando = true;
       container.classList.add("arrastando");
       posInicialX = e.pageX - container.offsetLeft;
@@ -403,12 +429,10 @@ function inicializarSetasCarrossel() {
       container.scrollLeft = scrollInicial - distancia;
     });
 
-    // ---- Rodinha do mouse também rola na horizontal ----
-    container.addEventListener("wheel", (e) => {
-      if (e.deltaY === 0) return;
-      e.preventDefault();
-      container.scrollBy({ left: e.deltaY * 1.2, behavior: "auto" });
-    }, { passive: false });
+    // OBS: a conversão da rodinha do mouse para scroll horizontal foi removida —
+    // era ela que travava a rolagem normal da página. Agora a rodinha rola a
+    // página verticalmente como em qualquer site; pra mover os cards, usa as
+    // setas ou clica e arrasta na faixa vazia abaixo dos cards.
   });
 }
 
