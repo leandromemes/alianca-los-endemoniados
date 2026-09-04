@@ -40,9 +40,6 @@ function carregarLinksDoFirebase() {
         "tg-canal": document.getElementById("gradeTelegramCanais")
       };
 
-      // Monta o HTML de cada seção inteiro numa string antes de tocar no DOM
-      // (evita repaint/reflow repetido a cada card, que é bem mais pesado
-      // no celular do que montar tudo de uma vez e inserir no final).
       const buffers = {};
       Object.keys(containers).forEach(tipo => { buffers[tipo] = ""; });
 
@@ -66,10 +63,8 @@ function carregarLinksDoFirebase() {
       if (totalTxt) totalTxt.innerText = totalContador;
 
       verificarStatusPainelAdm();
-      // Recalcula as setas do carrossel agora que os cards foram inseridos
       atualizarTodosCarrosseis();
 
-      // LÓGICA DA ANIMAÇÃO APÓS CARREGAR
       const idParaAnimar = localStorage.getItem("idParaAnimar");
       if (idParaAnimar) {
         const card = document.querySelector(`[data-id="${idParaAnimar}"]`);
@@ -195,6 +190,7 @@ function inicializarPainelControleAdm() {
       if (data.success) {
         localStorage.setItem("adm_logado", "true");
         verificarStatusPainelAdm();
+        carregarPendentesAdm();
         formLogin.reset();
       } else {
         alert("Senha incorreta!");
@@ -319,6 +315,124 @@ function verificarStatusPainelAdm() {
 }
 
 // ============================================================================
+// 4.1 SISTEMA DE APROVAÇÃO DE GRUPOS PENDENTES (enviados por visitantes)
+// ============================================================================
+function criarPendenteHtml(id, item) {
+  return `
+    <div class="pendente-card" data-pendente-id="${id}">
+      <img src="${item.imagem || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400'}"
+        alt="${item.nome}" class="pendente-img"
+        onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400';">
+      <div class="pendente-info">
+        <p class="pendente-nome" title="${item.nome}">${item.nome}</p>
+        <a href="${item.link}" target="_blank" class="pendente-link">${item.link}</a>
+        ${item.descricao ? `<p class="pendente-desc">${item.descricao}</p>` : ""}
+      </div>
+      <div class="pendente-acoes">
+        <button class="btn-aprovar" onclick="aprovarPendente('${id}')">✅ Aprovar</button>
+        <button class="btn-recusar" onclick="recusarPendente('${id}')">❌ Recusar</button>
+      </div>
+    </div>
+  `;
+}
+
+function carregarPendentesAdm() {
+  fetch(`${FIREBASE_URL}/pendentes.json`)
+    .then(res => res.json())
+    .then(dados => {
+      const lista = document.getElementById("listaPendentesAdm");
+      const contadorTitulo = document.getElementById("contadorPendentesTitulo");
+      const badge = document.getElementById("badgePendentes");
+
+      const ids = dados ? Object.keys(dados) : [];
+
+      if (contadorTitulo) contadorTitulo.innerText = `(${ids.length})`;
+
+      if (badge) {
+        if (ids.length > 0) {
+          badge.innerText = ids.length;
+          badge.style.display = "inline-flex";
+        } else {
+          badge.style.display = "none";
+        }
+      }
+
+      if (!lista) return;
+
+      if (ids.length === 0) {
+        lista.innerHTML = `<p class="pendentes-vazio" id="pendentesVazioMsg">Nenhum grupo pendente no momento.</p>`;
+        return;
+      }
+
+      lista.innerHTML = ids.map(id => criarPendenteHtml(id, dados[id])).join("");
+    })
+    .catch(err => console.error("Erro ao carregar pendentes:", err));
+}
+
+async function aprovarPendente(id) {
+  if (!confirm("Aprovar este grupo e publicá-lo em Grupos Parceiros?")) return;
+
+  const card = document.querySelector(`[data-pendente-id="${id}"]`);
+  if (card) card.style.opacity = "0.5";
+
+  try {
+    const res = await fetch(`${FIREBASE_URL}/pendentes/${id}.json`);
+    const item = await res.json();
+    if (!item) { alert("Este grupo pendente já não existe mais."); carregarPendentesAdm(); return; }
+
+    // Reenvia a imagem pro imgbb pra ficar salva de forma permanente.
+    // Aqui é seguro fazer isso (diferente da busca automática do visitante),
+    // pois é sempre 1 grupo por vez, então não há risco de estourar o
+    // tempo limite de nenhuma função — isso roda direto no navegador.
+    let imagemFinal = item.imagem;
+    if (imagemFinal) {
+      try {
+        const imgRes = await fetch(imagemFinal);
+        const blob = await imgRes.blob();
+        const formData = new FormData();
+        formData.append("image", blob);
+        const uploadRes = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+          method: "POST",
+          body: formData
+        });
+        const uploadData = await uploadRes.json();
+        if (uploadData?.data?.url) imagemFinal = uploadData.data.url;
+      } catch (imgErr) {
+        console.error("Erro ao reenviar imagem pro imgbb, mantendo original:", imgErr);
+      }
+    }
+
+    const novoGrupo = {
+      nome: item.nome,
+      link: item.link,
+      imagem: imagemFinal,
+      tipo: "grupo-geral"
+    };
+
+    const publicarRes = await fetch(`${FIREBASE_URL}/links.json`, { method: "POST", body: JSON.stringify(novoGrupo) });
+    const publicarData = await publicarRes.json();
+
+    await fetch(`${FIREBASE_URL}/pendentes/${id}.json`, { method: "DELETE" });
+
+    localStorage.setItem("idParaAnimar", publicarData.name);
+
+    carregarLinksDoFirebase();
+    carregarPendentesAdm();
+  } catch (err) {
+    console.error(err);
+    alert("Erro ao aprovar o grupo. Tente novamente.");
+    if (card) card.style.opacity = "1";
+  }
+}
+
+function recusarPendente(id) {
+  if (!confirm("Recusar e excluir este grupo pendente?")) return;
+  fetch(`${FIREBASE_URL}/pendentes/${id}.json`, { method: "DELETE" })
+    .then(() => carregarPendentesAdm())
+    .catch(err => console.error("Erro ao recusar pendente:", err));
+}
+
+// ============================================================================
 // 5. ENGINE DO SISTEMA DE COMPARTILHAMENTO
 // ============================================================================
 function inicializarSistemaCompartilhar() {
@@ -339,7 +453,6 @@ function inicializarSistemaCompartilhar() {
   });
 }
 
-// Fecha o dropdown de compartilhar ao clicar fora dele
 document.addEventListener("click", (e) => {
   const menu = document.getElementById('shareMenu');
   const trigger = document.getElementById('btnShareTrigger');
@@ -351,17 +464,10 @@ document.addEventListener("click", (e) => {
 // ============================================================================
 // 6. ENGINE DO CARROSSEL — SÓ SETAS + SCROLL NATIVO
 // ============================================================================
-// Removido de propósito: o "arrastar com o clique do mouse" (mousedown/
-// mousemove/mouseup) e o cursor grab/grabbing que vinham junto. Era esse
-// sistema que transformava o ponteiro em mãozinha ao passar por cima do
-// carrossel e que brigava com o scroll normal da página. Agora o carrossel
-// se comporta como qualquer lista horizontal padrão da web: scroll nativo
-// (trackpad, barra de rolagem, touch no celular) + botões de seta para
-// quem usa mouse comum sem trackpad/scroll horizontal.
 let atualizadoresCarrossel = [];
 
 function inicializarSetasCarrossel() {
-  atualizadoresCarrossel = []; // zera caso essa função rode mais de uma vez
+  atualizadoresCarrossel = [];
 
   document.querySelectorAll(".carrossel-container").forEach((container) => {
     if (container.parentElement.classList.contains("carrossel-wrapper")) return;
@@ -397,8 +503,6 @@ function inicializarSetasCarrossel() {
 
     container.querySelectorAll("img").forEach(img => img.setAttribute("draggable", "false"));
 
-    // Habilita/desabilita e esconde as setas conforme a posição da rolagem
-    // e só as mostra quando existe overflow real (algo pra rolar).
     const atualizarSetas = () => {
       const temOverflow = container.scrollWidth > container.clientWidth + 5;
       wrapper.classList.toggle("sem-overflow", !temOverflow);
@@ -415,7 +519,6 @@ function inicializarSetasCarrossel() {
   });
 }
 
-// Chama a atualização de todas as setas (usado após os cards carregarem do Firebase)
 function atualizarTodosCarrosseis() {
   atualizadoresCarrossel.forEach((fn) => fn());
 }
@@ -427,4 +530,5 @@ document.addEventListener("DOMContentLoaded", () => {
   inicializarPlayerMusica();
   inicializarPainelControleAdm();
   inicializarSistemaCompartilhar();
+  carregarPendentesAdm(); // atualiza o badge de pendentes mesmo antes de logar
 });

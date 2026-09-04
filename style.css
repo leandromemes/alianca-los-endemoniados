@@ -1464,3 +1464,139 @@ select.admin-input option {
   .enviar-card { padding: 1.5rem 1.25rem; }
   .enviar-titulo { font-size: 1.2rem; }
 }
+
+/* ============================================================================
+   15. BADGE DE PENDENTES E LISTA DE APROVAÇÃO NO PAINEL ADMIN
+   ============================================================================ */
+.btn-admin-trigger {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between !important;
+}
+
+.badge-pendentes {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 900;
+  box-shadow: 0 0 8px rgba(255, 0, 60, 0.5);
+}
+
+.admin-secao-divisor {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 1.5rem 0 1.25rem;
+}
+
+.admin-secao-titulo {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+  color: #fff;
+  margin-bottom: 1rem;
+}
+
+.admin-secao-titulo span { color: var(--primary); }
+
+.lista-pendentes-adm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.pendentes-vazio {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.pendente-card {
+  display: flex;
+  gap: 0.75rem;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.65rem;
+  transition: opacity 0.2s;
+}
+
+.pendente-img {
+  width: 50px;
+  height: 50px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.pendente-info { flex: 1; min-width: 0; }
+
+.pendente-nome {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pendente-link {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration: none;
+  margin-top: 0.15rem;
+}
+
+.pendente-link:hover { color: #00e676; }
+
+.pendente-desc {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+  line-height: 1.3;
+}
+
+.pendente-acoes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.btn-aprovar, .btn-recusar {
+  border: none;
+  border-radius: 5px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: 0.2s;
+}
+
+.btn-aprovar {
+  background: rgba(0, 230, 118, 0.15);
+  color: #00e676;
+}
+.btn-aprovar:hover { background: #00e676; color: #000; }
+
+.btn-recusar {
+  background: rgba(255, 0, 60, 0.1);
+  color: var(--primary);
+}
+.btn-recusar:hover { background: var(--primary); color: #fff; }

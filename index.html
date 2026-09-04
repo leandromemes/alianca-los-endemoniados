@@ -50,7 +50,8 @@
       </nav>
       <button id="btnAbrirAdmin" class="menu-item btn-admin-trigger"
         style="margin-top: 1rem; text-align: left; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,0,60,0.3); cursor: pointer;">
-        🔐 PAINEL ADMIN
+        <span>🔐 PAINEL ADMIN</span>
+        <span id="badgePendentes" class="badge-pendentes">0</span>
       </button>
       <button id="musicBtn" class="sidebar-player" aria-label="Controlar Música">
         <div class="player-espectro" id="playerDisco">
@@ -255,6 +256,15 @@
             <button type="submit" id="btnPublicarLink" class="admin-submit-btn"
               style="background: #00e676; border: none; color: #000;">PUBLICAR</button>
         </form>
+
+        <hr class="admin-secao-divisor">
+
+        <div class="admin-secao-pendentes">
+          <h4 class="admin-secao-titulo">📥 GRUPOS PENDENTES <span id="contadorPendentesTitulo">(0)</span></h4>
+          <div id="listaPendentesAdm" class="lista-pendentes-adm">
+            <p class="pendentes-vazio" id="pendentesVazioMsg">Nenhum grupo pendente no momento.</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
