@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enviar Grupo ou Canal — L Community</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="bg-video-wrap">
+    <video autoplay loop muted playsinline controlslist="nodownload" class="video-elemento">
+      <source src="meu-video.mp4" type="video/mp4">
+    </video>
+    <div class="ambient-bg"></div>
+  </div>
+
+  <div class="pagina-enviar">
+    <div class="enviar-topo">
+      <a href="index.html" class="enviar-voltar">← Voltar para o site</a>
+      <div class="enviar-marca">
+        <div class="mini-avatar">
+          <img src="foto-logo.png" alt="Logo L Community" class="logo-img-sidebar">
+        </div>
+        <span class="sidebar-brand">L Community</span>
+      </div>
+    </div>
+
+    <div class="enviar-card">
+      <div id="etapaFormulario">
+        <div class="enviar-header">
+          <h1 class="enviar-titulo">📩 Enviar Grupo ou Canal</h1>
+          <p class="enviar-subtitulo">Cole o link abaixo — a gente busca nome, imagem e descrição automaticamente pra você.</p>
+        </div>
+
+        <div class="enviar-steps">
+          <div class="enviar-step ativo" id="stepIndicador1">
+            <span class="enviar-step-numero">1</span>
+            <span>Link</span>
+          </div>
+          <div class="enviar-step-linha"></div>
+          <div class="enviar-step" id="stepIndicador2">
+            <span class="enviar-step-numero">2</span>
+            <span>Detalhes</span>
+          </div>
+        </div>
+
+        <div id="mensagemErro" class="enviar-erro"></div>
+
+        <!-- ETAPA 1: LINK -->
+        <div id="etapa1" class="enviar-etapa ativa">
+          <label class="form-label">Link do grupo ou canal do WhatsApp</label>
+          <input type="url" id="linkGrupoVisitante" class="admin-input" placeholder="https://chat.whatsapp.com/..." required>
+          <button type="button" id="btnValidarLink" class="admin-submit-btn">Validar e continuar</button>
+        </div>
+
+        <!-- ETAPA 2: DETALHES -->
+        <div id="etapa2" class="enviar-etapa">
+          <div class="enviar-preview">
+            <img id="previewImgVisitante" src="" alt="Prévia do grupo">
+            <div>
+              <div class="enviar-preview-nome" id="previewNomeVisitante"></div>
+              <div class="enviar-preview-tag">✓ Dados encontrados</div>
+            </div>
+          </div>
+
+          <label class="form-label">Descrição (opcional)</label>
+          <textarea id="descricaoGrupoVisitante" class="enviar-textarea" placeholder="Conte um pouco sobre o grupo..."></textarea>
+
+          <div class="enviar-categoria-fixa">
+            💬 Este link será enviado para <strong>Grupos Parceiros</strong>
+          </div>
+
+          <button type="button" id="btnEnviarGrupoVisitante" class="admin-submit-btn" style="background:#00e676; border:none; color:#000;">📤 Enviar para aprovação</button>
+          <button type="button" id="btnVoltarEtapa1" class="enviar-btn-voltar">Voltar</button>
+        </div>
+      </div>
+
+      <!-- ETAPA 3: SUCESSO -->
+      <div id="etapaSucesso" class="enviar-sucesso" style="display:none;">
+        <div class="enviar-sucesso-icone">✅</div>
+        <h2 class="enviar-sucesso-titulo">Grupo enviado!</h2>
+        <p class="enviar-sucesso-texto">Seu grupo foi enviado com sucesso e está aguardando aprovação de um administrador. Assim que for aprovado, ele aparecerá na seção de Grupos Parceiros.</p>
+        <button type="button" id="btnEnviarOutro" class="admin-submit-btn">Enviar outro grupo</button>
+        <a href="index.html" class="enviar-btn-voltar" style="display:block; text-align:center; text-decoration:none; margin-top:0.75rem;">Voltar para o site</a>
+      </div>
+
+      <div class="enviar-rodape-info">
+        <span>🔓 Sem necessidade de conta</span>
+        <span>⚡ Aprovação rápida</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="enviar-grupo.js" defer></script>
+</body>
+</html>
