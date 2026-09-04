@@ -51,8 +51,10 @@ body {
   object-position: center;
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
-  filter: contrast(1.05) brightness(0.9); 
-  will-change: transform;
+  filter: contrast(1.05) brightness(0.9);
+  /* removido will-change: transform — o vídeo nunca é transladado,
+     então essa propriedade só forçava o navegador a manter uma
+     camada de composição extra em memória o tempo todo, sem motivo. */
 }
 
 .ambient-bg {
@@ -260,14 +262,14 @@ body {
   color: var(--text-muted);
 }
 
-.status-online { 
-  color: #00e676; 
-  animation: pulse 2s infinite; 
+.status-online {
+  color: #00e676;
+  animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
-  0% { opacity: 0.6; } 
-  50% { opacity: 1; } 
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
   100% { opacity: 0.6; }
 }
 
@@ -288,12 +290,12 @@ body {
 }
 
 .hero-avatar {
-  width: 100%; 
-  height: 100%; 
-  background: #000; 
+  width: 100%;
+  height: 100%;
+  background: #000;
   border-radius: 12px;
-  display: flex; 
-  align-items: center; 
+  display: flex;
+  align-items: center;
   justify-content: center;
   overflow: hidden;
 }
@@ -305,51 +307,51 @@ body {
 }
 
 .hero-badge {
-  font-family: 'Orbitron'; 
-  font-size: 0.6rem; 
+  font-family: 'Orbitron';
+  font-size: 0.6rem;
   color: var(--primary);
-  background: rgba(255, 0, 60, 0.1); 
-  padding: 0.2rem 0.5rem; 
+  background: rgba(255, 0, 60, 0.1);
+  padding: 0.2rem 0.5rem;
   border-radius: 4px;
-  display: inline-block; 
-  margin-bottom: 0.4rem; 
+  display: inline-block;
+  margin-bottom: 0.4rem;
   letter-spacing: 1px;
 }
 
-.hero-name { 
-  font-family: 'Orbitron', sans-serif; 
-  font-size: 2.4rem; 
-  font-weight: 900; 
+.hero-name {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2.4rem;
+  font-weight: 900;
 }
 
-.hero-desc { 
-  font-size: 1rem; 
-  color: var(--text-muted); 
+.hero-desc {
+  font-size: 1rem;
+  color: var(--text-muted);
 }
 
-.hero-social { 
-  display: flex; 
+.hero-social {
+  display: flex;
   align-items: center;
-  gap: 0.5rem; 
-  margin-top: 0.75rem; 
+  gap: 0.5rem;
+  margin-top: 0.75rem;
 }
 
 .social-pill {
-  text-decoration: none; 
-  color: #fff; 
+  text-decoration: none;
+  color: #fff;
   background: rgba(255,255,255,0.02);
-  border: 1px solid var(--border-color); 
-  padding: 0.35rem 1rem; 
+  border: 1px solid var(--border-color);
+  padding: 0.35rem 1rem;
   border-radius: 6px;
-  font-size: 0.8rem; 
-  font-weight: 700; 
+  font-size: 0.8rem;
+  font-weight: 700;
   transition: 0.2s;
   cursor: pointer;
 }
 
-.social-pill:hover { 
-  border-color: var(--primary); 
-  background: rgba(255,0,60,0.1); 
+.social-pill:hover {
+  border-color: var(--primary);
+  background: rgba(255,0,60,0.1);
 }
 
 .share-dropdown-wrapper {
@@ -410,36 +412,36 @@ body {
 /* ============================================================================
    7. CONTADORES / PLACAS DE ESTATÍSTICA
    ============================================================================ */
-.stats-bar { 
-  display: grid; 
-  grid-template-columns: repeat(4, 1fr); 
-  gap: 1rem; 
-  margin-bottom: 3rem; 
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 3rem;
 }
 
-.stat-card { 
-  background: var(--card-bg); 
-  border: 1px solid var(--border-color); 
-  border-radius: 8px; 
-  padding: 1rem; 
-  display: flex; 
-  flex-direction: column; 
+.stat-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
 }
 
-.stat-value { 
-  font-family: 'Orbitron'; 
-  font-size: 1.6rem; 
-  font-weight: 900; 
+.stat-value {
+  font-family: 'Orbitron';
+  font-size: 1.6rem;
+  font-weight: 900;
 }
 
 .text-red { color: var(--primary); }
 .text-green { color: #00e676; }
 
-.stat-label { 
-  font-size: 0.65rem; 
-  font-weight: 700; 
-  color: var(--text-muted); 
-  letter-spacing: 0.5px; 
+.stat-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
 }
 
 /* ============================================================================
@@ -447,29 +449,37 @@ body {
    ============================================================================ */
 .secao-grupos-wrapper { margin-bottom: 3rem; }
 
-.section-header { 
-  display: flex; 
-  align-items: center; 
-  gap: 1rem; 
-  margin-bottom: 1.5rem; 
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
-.section-header-title { 
-  font-family: 'Orbitron'; 
-  font-size: 1rem; 
-  letter-spacing: 1px; 
+.section-header-title {
+  font-family: 'Orbitron';
+  font-size: 1rem;
+  letter-spacing: 1px;
 }
 
-.section-header-line { 
-  flex: 1; 
-  height: 1px; 
-  background: var(--border-color); 
+.section-header-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border-color);
 }
 
 .carrossel-container {
   width: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
   cursor: grab;
+  padding: 10px 0;
+  /* -webkit-overflow-scrolling: touch; REMOVIDO DE PROPÓSITO.
+     Essa propriedade é obsoleta (o scroll já é suave nativamente em
+     todo navegador mobile atual) e, combinada com os elementos "fixed"
+     + blur da página (vídeo de fundo e sidebar), era a principal causa
+     do conteúdo sumindo/reaparecendo ao rolar rápido — o navegador
+     ficava recriando a camada de composição do carrossel a cada scroll. */
 }
 
 /* Barra de rolagem fina e discreta, no estilo do site (em vez de escondida) */
@@ -496,8 +506,10 @@ body {
 }
 
 .groups-grid {
-  display: flex;
-  gap: 1.25rem;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 15px !important;
+  width: max-content !important; /* Força o pai a ter a largura exata dos cards */
   padding-bottom: 0.5rem;
 }
 
@@ -546,20 +558,23 @@ body {
 }
 
 .group-card {
-  flex: 0 0 220px;
-  background: var(--card-bg); 
+  min-width: 220px !important; /* Garante que nunca seja menor que 220px */
+  width: 220px !important;
+  flex: 0 0 220px !important; /* Proíbe encolher ou esticar */
+  height: auto;
+  background: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: 12px; 
-  overflow: hidden; 
-  display: flex; 
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
   flex-direction: column;
   transition: transform 0.2s, border-color 0.2s;
   padding: 10px;
 }
 
-.group-card:hover { 
-  transform: translateY(-3px); 
-  border-color: var(--primary); 
+.group-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--primary);
 }
 
 .group-card.vip-card {
@@ -572,67 +587,67 @@ body {
   box-shadow: 0 0 20px rgba(255, 204, 0, 0.2);
 }
 
-.card-banner { 
-  position: relative; 
+.card-banner {
+  position: relative;
   width: 100%;
   aspect-ratio: 1 / 1;
-  background: #000; 
+  background: #000;
   border-radius: 8px;
   overflow: hidden;
 }
 
-.card-banner img { 
-  width: 100%; 
-  height: 100%; 
-  object-fit: cover; 
-  opacity: 0.8; 
+.card-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.8;
   transition: opacity 0.2s;
 }
 
 .group-card:hover .card-banner img { opacity: 1; }
 
 .card-badge-categoria {
-  position: absolute; 
-  bottom: 8px; 
-  right: 8px; 
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
   background: rgba(0,0,0,0.8);
-  border: 1px solid var(--border-color); 
+  border: 1px solid var(--border-color);
   padding: 0.15rem 0.4rem;
-  border-radius: 4px; 
-  font-size: 0.6rem; 
-  font-weight: 700; 
+  border-radius: 4px;
+  font-size: 0.6rem;
+  font-weight: 700;
   color: var(--primary);
   text-transform: uppercase;
 }
 
 .card-badge-vip {
-  position: absolute; 
-  top: 8px; 
-  left: 8px; 
+  position: absolute;
+  top: 8px;
+  left: 8px;
   background: #000;
-  border: 1px solid var(--vip-color); 
+  border: 1px solid var(--vip-color);
   padding: 0.15rem 0.4rem;
-  border-radius: 4px; 
-  font-size: 0.6rem; 
-  font-weight: 900; 
+  border-radius: 4px;
+  font-size: 0.6rem;
+  font-weight: 900;
   color: var(--vip-color);
   box-shadow: 0 0 8px var(--vip-color);
   font-family: 'Orbitron';
 }
 
-.card-corpo { 
-  padding: 0.75rem 0 0 0; 
-  display: flex; 
-  flex-direction: column; 
-  flex-grow: 1; 
-  justify-content: space-between; 
-  gap: 0.75rem; 
+.card-corpo {
+  padding: 0.75rem 0 0 0;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
-.card-titulo { 
-  font-size: 0.9rem; 
-  font-weight: 700; 
-  color: #fff; 
+.card-titulo {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
   text-transform: uppercase;
   text-align: center;
   white-space: nowrap;
@@ -641,30 +656,30 @@ body {
 }
 
 .card-botao-entrar {
-  display: block; 
-  text-align: center; 
+  display: block;
+  text-align: center;
   text-decoration: none;
-  background: rgba(255, 0, 60, 0.05); 
+  background: rgba(255, 0, 60, 0.05);
   border: 1px solid rgba(255, 0, 60, 0.2);
-  color: #fff; 
-  font-size: 0.75rem; 
-  font-weight: 700; 
-  padding: 0.55rem; 
-  border-radius: 6px; 
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.55rem;
+  border-radius: 6px;
   transition: 0.2s;
 }
 
-.group-card:hover .card-botao-entrar { 
-  background: var(--primary); 
-  border-color: var(--primary); 
-  box-shadow: 0 0 10px rgba(255,0,60,0.3); 
+.group-card:hover .card-botao-entrar {
+  background: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 0 10px rgba(255,0,60,0.3);
 }
 
-.group-card.vip-card:hover .card-botao-entrar { 
-  background: var(--vip-color); 
-  border-color: var(--vip-color); 
-  color: #000; 
-  box-shadow: 0 0 10px rgba(255,204,0,0.4); 
+.group-card.vip-card:hover .card-botao-entrar {
+  background: var(--vip-color);
+  border-color: var(--vip-color);
+  color: #000;
+  box-shadow: 0 0 10px rgba(255,204,0,0.4);
 }
 
 .btn-deletar-card-adm {
@@ -693,6 +708,8 @@ body {
   display: flex;
   justify-content: flex-start;
   padding: 0.5rem 0;
+  gap: 1rem;
+  flex-wrap: wrap; /* em telas pequenas, os cards quebram linha em vez de estourar */
 }
 
 .owner-card-square {
@@ -705,8 +722,8 @@ body {
   border: 1px solid rgba(255, 204, 0, 0.35);
   border-radius: 12px;
   padding: 1rem;
-  width: 170px; 
-  height: 170px; 
+  width: 170px;
+  height: 170px;
   box-shadow: 0 0 15px rgba(255, 204, 0, 0.05);
   transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
   text-align: center;
@@ -740,7 +757,7 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 8px; 
+  border-radius: 8px;
   border: 1px solid var(--vip-color);
 }
 
@@ -800,21 +817,89 @@ body {
   box-shadow: 0 0 8px rgba(255, 204, 0, 0.4);
 }
 
+/* ---------- Variante de cor para o card de ADM (azul, pra diferenciar do dourado do dono) ---------- */
+.owner-card-square-adm {
+  border-color: rgba(0, 153, 255, 0.35);
+  box-shadow: 0 0 15px rgba(0, 153, 255, 0.05);
+}
+
+.owner-card-square-adm:hover {
+  border-color: #0099ff;
+  box-shadow: 0 0 20px rgba(0, 153, 255, 0.25);
+}
+
+.owner-card-square-adm .owner-square-badge {
+  color: #0099ff;
+}
+
+.owner-card-square-adm .owner-square-avatar img {
+  border-color: #0099ff;
+}
+
+.owner-card-square-adm .owner-square-btn {
+  background: rgba(0, 153, 255, 0.08);
+  border-color: rgba(0, 153, 255, 0.25);
+}
+
+.owner-card-square-adm:hover .owner-square-btn {
+  background: #0099ff;
+  border-color: #0099ff;
+  color: #000;
+  box-shadow: 0 0 8px rgba(0, 153, 255, 0.4);
+}
+
 /* ============================================================================
    10. FOOTER DA PLATAFORMA
    ============================================================================ */
-.site-footer { 
-  border-top: 1px solid var(--border-color); 
-  padding-top: 1.5rem; 
-  margin-top: 4rem; 
-  text-align: center; 
-  font-size: 0.8rem; 
-  color: var(--text-muted); 
+.site-footer {
+  background: rgba(10, 10, 10, 0.95);
+  border-top: 2px solid #ff003c;
+  padding: 40px 20px;
+  color: #ccc;
+  margin-top: 50px;
+  text-align: center;
+  font-size: 0.8rem;
 }
 
-.footer-credits { 
-  margin-top: 0.25rem; 
-  color: rgba(255,255,255,0.2); 
+.footer-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.footer-col h3 {
+  color: #fff;
+  font-family: 'Orbitron', sans-serif;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+}
+
+.footer-col a {
+  display: block;
+  color: #aaa;
+  text-decoration: none;
+  margin-bottom: 8px;
+  transition: 0.3s;
+}
+
+.footer-col a:hover {
+  color: #ff003c;
+}
+
+.footer-bottom {
+  text-align: center;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #333;
+  font-size: 0.9rem;
+}
+
+.footer-credits {
+  margin-top: 0.25rem;
+  color: rgba(255,255,255,0.2);
 }
 
 /* ============================================================================
@@ -901,6 +986,8 @@ body {
   padding: 1.75rem;
   box-shadow: 0 0 30px rgba(255, 0, 60, 0.15);
   animation: modalEntrada 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 @keyframes modalEntrada {
@@ -996,6 +1083,18 @@ select.admin-input option {
   box-shadow: 0 0 15px rgba(255, 0, 60, 0.4);
 }
 
+/* Efeito de destaque para novo grupo publicado */
+@keyframes aura-destaque {
+  0% { box-shadow: 0 0 0px #00e676; }
+  50% { box-shadow: 0 0 30px #00e676; }
+  100% { box-shadow: 0 0 0px #00e676; }
+}
+
+.novo-grupo-destaque {
+  animation: aura-destaque 2s ease-out;
+  border: 2px solid #00e676 !important;
+}
+
 /* ============================================================================
    13. MEDIA QUERIES E RESPONSIVIDADE (OTIMIZADO PARA CELULAR)
    ============================================================================ */
@@ -1039,6 +1138,12 @@ select.admin-input option {
     transform: translateX(-100%);
     width: 270px;
     box-shadow: 10px 0 30px rgba(0, 0, 0, 0.8);
+    /* Blur pesado trocado por fundo sólido no celular: backdrop-filter
+       combinado com position:fixed é uma das operações mais caras pra
+       GPU de aparelhos médios/fracos, e era outra fonte do "flash" ao
+       rolar rápido. Some do celular; continua liso no desktop lá em cima. */
+    backdrop-filter: none;
+    background: #08080a;
   }
 
   .sidebar-esquerda.open {
@@ -1103,132 +1208,12 @@ select.admin-input option {
     100% { transform: translateY(0px); }
   }
 
-  .music-fab-mobile:active { transform: scale(0.9); }
   .sidebar-player { display: none !important; }
 }
 
-/* --- CSS DE TRAVAMENTO TOTAL DO CARROSSEL --- */
-
-/* 1. Container de rolagem pai */
-.carrossel-container {
-    width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding: 10px 0;
-    -webkit-overflow-scrolling: touch; /* Suaviza no mobile */
-}
-
-/* 2. O Grid vira um flex imutável */
-.groups-grid {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    gap: 15px !important;
-    width: max-content !important; /* Força o pai a ter a largura exata dos cards */
-}
-
-/* 3. O Card com largura e crescimento proibidos */
-.group-card {
-    min-width: 220px !important; /* Garante que nunca seja menor que 220px */
-    width: 220px !important;
-    flex: 0 0 220px !important; /* Proíbe encolher ou esticar */
-    height: auto;
-}
-
-/* 4. Segurança extra para o container da página não estourar */
+/* Segurança extra para o container da página não estourar lateralmente */
 .page-wrap {
-    width: 100%;
-    max-width: 100vw;
-    overflow-x: hidden; /* Corta qualquer coisa que tente vazar lateralmente */
-}
-
-.site-footer {
-  background: rgba(10, 10, 10, 0.95);
-  border-top: 2px solid #ff003c;
-  padding: 40px 20px;
-  color: #ccc;
-  margin-top: 50px;
-}
-
-.footer-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 30px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.footer-col h3 {
-  color: #fff;
-  font-family: 'Orbitron', sans-serif;
-  margin-bottom: 15px;
-  font-size: 1.1rem;
-}
-
-.footer-col a {
-  display: block;
-  color: #aaa;
-  text-decoration: none;
-  margin-bottom: 8px;
-  transition: 0.3s;
-}
-
-.footer-col a:hover {
-  color: #ff003c;
-}
-
-.footer-bottom {
-  text-align: center;
-  margin-top: 40px;
-  padding-top: 20px;
-  border-top: 1px solid #333;
-  font-size: 0.9rem;
-}
-
-/* Efeito de destaque para novo grupo publicado */
-@keyframes aura-destaque {
-  0% { box-shadow: 0 0 0px #00e676; }
-  50% { box-shadow: 0 0 30px #00e676; }
-  100% { box-shadow: 0 0 0px #00e676; }
-}
-
-.novo-grupo-destaque {
-  animation: aura-destaque 2s ease-out;
-  border: 2px solid #00e676 !important;
-}
-
-/* ---------- Espaçamento entre os cards de staff (dono + adms) ---------- */
-.staff-layout-quadrado {
-  gap: 1rem;
-  flex-wrap: wrap; /* em telas pequenas, os cards quebram linha em vez de estourar */
-}
-
-/* ---------- Variante de cor para o card de ADM (azul, pra diferenciar do dourado do dono) ---------- */
-.owner-card-square-adm {
-  border-color: rgba(0, 153, 255, 0.35);
-  box-shadow: 0 0 15px rgba(0, 153, 255, 0.05);
-}
-
-.owner-card-square-adm:hover {
-  border-color: #0099ff;
-  box-shadow: 0 0 20px rgba(0, 153, 255, 0.25);
-}
-
-.owner-card-square-adm .owner-square-badge {
-  color: #0099ff;
-}
-
-.owner-card-square-adm .owner-square-avatar img {
-  border-color: #0099ff;
-}
-
-.owner-card-square-adm .owner-square-btn {
-  background: rgba(0, 153, 255, 0.08);
-  border-color: rgba(0, 153, 255, 0.25);
-}
-
-.owner-card-square-adm:hover .owner-square-btn {
-  background: #0099ff;
-  border-color: #0099ff;
-  color: #000;
-  box-shadow: 0 0 8px rgba(0, 153, 255, 0.4);
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
 }
