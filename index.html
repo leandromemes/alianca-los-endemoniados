@@ -1,21 +1,16 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>L Community — Aliança de Grupos</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap"
     rel="stylesheet">
-
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
   <div id="introOverlay" class="intro-overlay">
     <div class="intro-box">
       <h2 class="intro-title">BEM-VINDO À ALIANÇA</h2>
@@ -23,25 +18,20 @@
       <button id="btnEntrarSite" class="intro-btn-entrar">ENTRAR NO SITE</button>
     </div>
   </div>
-
   <div class="bg-video-wrap">
     <video autoplay loop muted playsinline controlslist="nodownload" class="video-elemento">
       <source src="meu-video.mp4" type="video/mp4">
     </video>
     <div class="ambient-bg"></div>
   </div>
-
   <audio id="musicAudio" loop preload="auto">
     <source src="minha-musica.mp3" type="audio/mp3">
   </audio>
-
   <div class="mobile-header">
     <span class="mobile-brand">L Community</span>
     <button id="btnMenuMobile" class="btn-menu-mobile" aria-label="Abrir Menu">☰</button>
   </div>
-
   <div class="site-layout">
-
     <aside id="sidebarEsquerda" class="sidebar-esquerda">
       <div class="sidebar-logo-box">
         <div class="mini-avatar">
@@ -49,7 +39,6 @@
         </div>
         <span class="sidebar-brand">L Community</span>
       </div>
-
       <nav class="sidebar-menu">
         <a href="#sec-vips" class="menu-item active">⭐ GRUPOS VIP</a>
         <a href="https://devsoberano.com/whatsapp-sem-chip" target="_blank" class="menu-item">📱 NÚMEROS VIRTUAIS</a>
@@ -59,12 +48,10 @@
         <a href="#sec-tg-grupos" class="menu-item">🔹 TELEGRAM GRUPOS</a>
         <a href="#sec-tg-canais" class="menu-item">🔸 TELEGRAM CANAIS</a>
       </nav>
-
       <button id="btnAbrirAdmin" class="menu-item btn-admin-trigger"
         style="margin-top: 1rem; text-align: left; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,0,60,0.3); cursor: pointer;">
         🔐 PAINEL ADMIN
       </button>
-
       <button id="musicBtn" class="sidebar-player" aria-label="Controlar Música">
         <div class="player-espectro" id="playerDisco">
           <span class="barra-espectro"></span>
@@ -78,16 +65,13 @@
         </div>
       </button>
     </aside>
-
     <div class="page-wrap">
-
       <header class="site-header">
         <div class="header-nav-links">
           <span>ALIANÇA</span>
           <span class="status-online">● ONLINE</span>
         </div>
       </header>
-
       <section class="hero">
         <div class="hero-profile">
           <div class="hero-avatar-ring">
@@ -95,16 +79,13 @@
               <img src="foto-logo.png" alt="Logo L Community" class="logo-img-hero">
             </div>
           </div>
-
           <div class="hero-info">
             <div class="hero-badge">ALIANÇA OFICIAL</div>
             <h1 class="hero-name">L Community</h1>
             <p class="hero-desc">Uma aliança, um propósito, um destino!</p>
-
             <div class="hero-social">
               <a href="https://wa.me/5574991940377" target="_blank" class="social-pill">WhatsApp</a>
               <a href="https://t.me/+C__RoXm7BVk5NDBh" target="_blank" class="social-pill">Telegram</a>
-
               <div class="share-dropdown-wrapper">
                 <button id="btnShareTrigger" class="social-pill btn-share-main">🔗 COMPARTILHAR</button>
                 <div id="shareMenu" class="share-dropdown-menu">
@@ -117,9 +98,7 @@
           </div>
         </div>
       </section>
-
       <main class="container">
-
         <div class="stats-bar">
           <div class="stat-card">
             <span class="stat-value text-red" id="count-total">0</span>
@@ -138,7 +117,6 @@
             <span class="stat-label">VISITANTES TOTAL</span>
           </div>
         </div>
-
         <section id="sec-vips" class="secao-grupos-wrapper">
           <div class="section-header">
             <h2 class="section-header-title">⭐ GRUPOS VIP</h2>
@@ -148,7 +126,6 @@
             <div id="gradeVips" class="groups-grid"></div>
           </div>
         </section>
-
         <section id="sec-normais" class="secao-grupos-wrapper">
           <div class="section-header">
             <h2 class="section-header-title">💬 GRUPOS PARCEIROS</h2>
@@ -158,7 +135,6 @@
             <div id="gradeNormais" class="groups-grid"></div>
           </div>
         </section>
-
         <section id="sec-canais-wa" class="secao-grupos-wrapper">
           <div class="section-header">
             <h2 class="section-header-title">📢 CANAIS WHATSAPP</h2>
@@ -168,7 +144,6 @@
             <div id="gradeCanaisWA" class="groups-grid"></div>
           </div>
         </section>
-
         <section id="sec-tg-grupos" class="secao-grupos-wrapper">
           <div class="section-header">
             <h2 class="section-header-title">🔹 TELEGRAM GRUPOS</h2>
@@ -178,7 +153,6 @@
             <div id="gradeTelegramGrupos" class="groups-grid"></div>
           </div>
         </section>
-
         <section id="sec-tg-canais" class="secao-grupos-wrapper">
           <div class="section-header">
             <h2 class="section-header-title">🔸 TELEGRAM CANAIS</h2>
@@ -188,7 +162,6 @@
             <div id="gradeTelegramCanais" class="groups-grid"></div>
           </div>
         </section>
-
         <section id="sec-staff" class="secao-grupos-wrapper">
           <div class="section-header">
             <h2 class="section-header-title">👑 DONO E ADMS</h2>
@@ -209,9 +182,8 @@
             </div>
           </div>
         </section>
-
       </main>
-      
+
       <footer class="site-footer">
         <div class="footer-container">
           <div class="footer-col">
@@ -234,14 +206,11 @@
           <p>&copy; 2026 <strong>L Community</strong> | Desenvolvido por ༄ Đev Šoberano ×͜×</p>
         </div>
       </footer>
-
     </div>
   </div>
-
   <button id="musicBtnMobile" class="music-fab-mobile" aria-label="Play/Pause Música">
     <span id="fabIcon">🎵</span>
   </button>
-
   <div id="modalAdmin" class="modal-admin-overlay">
     <div class="modal-admin-box">
       <div class="modal-admin-header">
@@ -263,20 +232,15 @@
               🔍 Buscar
             </button>
           </div>
-
           <div id="previewBuscaGrupo" style="display:none; text-align:center; margin:12px 0;">
             <img id="previewImgGrupo" src="" style="width:70px;height:70px;border-radius:50%;object-fit:cover;">
             <p id="previewNomeGrupo" style="color:#00e676; font-size:0.85rem; margin-top:5px;"></p>
           </div>
-
           <input type="hidden" id="admImgGrupoUrl" value="">
-
             <label class="form-label">Nome do Grupo/canal</label>
             <input type="text" id="admNomeGrupo" class="admin-input" placeholder="ex: L Community" required>
-
             <label class="form-label">Enviar Imagem (só se quiser trocar a imagem buscada)</label>
             <input type="file" id="admImgGrupo" class="admin-input" accept="image/*">
-
             <label class="form-label">Escolha uma Categoria</label>
             <select id="admSessaoGrupo" class="admin-input">
               <option value="grupo-geral">💬 Grupo Parceiros</option>
@@ -291,24 +255,20 @@
       </div>
     </div>
   </div>
-
   <script>
     const modal = document.getElementById('modalAdmin');
     const btnAbrir = document.getElementById('btnAbrirAdmin');
     const btnFechar = document.getElementById('btnFecharAdmin');
     const btnMenuMobile = document.getElementById('btnMenuMobile');
     const sidebarEsquerda = document.getElementById('sidebarEsquerda');
-
     btnAbrir.onclick = () => { modal.style.display = 'flex'; sidebarEsquerda.classList.remove('open'); };
     btnFechar.onclick = () => modal.style.display = 'none';
     window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
-
     btnMenuMobile.onclick = (e) => { e.stopPropagation(); sidebarEsquerda.classList.toggle('open'); };
     document.addEventListener('click', (e) => {
       if (!sidebarEsquerda.contains(e.target) && e.target !== btnMenuMobile) sidebarEsquerda.classList.remove('open');
     });
   </script>
-  <script src="app.js"></script>
+  <script src="app.js" defer></script>
 </body>
-
 </html>

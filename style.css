@@ -472,8 +472,12 @@ body {
   width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
-  cursor: grab;
   padding: 10px 0;
+  /* Isola o scroll horizontal do carrossel para que ele nunca "puxe"
+     a rolagem vertical da página junto (evita o travamento ao rolar
+     rápido por cima da área dos grupos). */
+  overscroll-behavior-x: contain;
+  touch-action: pan-x;
   /* -webkit-overflow-scrolling: touch; REMOVIDO DE PROPÓSITO.
      Essa propriedade é obsoleta (o scroll já é suave nativamente em
      todo navegador mobile atual) e, combinada com os elementos "fixed"
@@ -497,12 +501,6 @@ body {
 .carrossel-container {
   scrollbar-width: thin;
   scrollbar-color: var(--primary) rgba(255, 255, 255, 0.03);
-}
-
-.carrossel-container.arrastando {
-  cursor: grabbing;
-  user-select: none;
-  scroll-behavior: auto;
 }
 
 .groups-grid {

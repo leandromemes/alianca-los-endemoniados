@@ -2,7 +2,7 @@
 // 1. CONFIGURAÇÕES GLOBAIS E LINKS DO BANCO DE DADOS
 // ============================================================================
 const FIREBASE_URL = "https://cybersoberano-default-rtdb.firebaseio.com";
-const IMGBB_API_KEY = "8bf2a05fe7578df492f6bdb4f10f9925"; 
+const IMGBB_API_KEY = "8bf2a05fe7578df492f6bdb4f10f9925";
 
 // FUNÇÃO PARA CRIAR CARD HTML
 function criarCardHtml(id, item) {
@@ -12,7 +12,7 @@ function criarCardHtml(id, item) {
   return `
     <div class="group-card ${isVip ? 'vip-card' : ''}" data-id="${id}">
       <div class="card-banner">
-        <img src="${item.imagem}" alt="${item.nome}" draggable="false" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400';">
+        <img src="${item.imagem}" alt="${item.nome}" draggable="false" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400';">
         ${isVip ? '<span class="card-badge-vip">★ VIP</span>' : ''}
         <span class="card-badge-categoria">${tagExibicao}</span>
       </div>
@@ -39,26 +39,36 @@ function carregarLinksDoFirebase() {
         "tg-grupo": document.getElementById("gradeTelegramGrupos"),
         "tg-canal": document.getElementById("gradeTelegramCanais")
       };
-      Object.values(containers).forEach(c => { if(c) c.innerHTML = ""; });
-      if (!dados) {
-        const totalTxt = document.getElementById("count-total");
-        if (totalTxt) totalTxt.innerText = "0";
-        atualizarTodosCarrosseis();
-        return;
-      }
+
+      // Monta o HTML de cada seção inteiro numa string antes de tocar no DOM
+      // (evita repaint/reflow repetido a cada card, que é bem mais pesado
+      // no celular do que montar tudo de uma vez e inserir no final).
+      const buffers = {};
+      Object.keys(containers).forEach(tipo => { buffers[tipo] = ""; });
+
       let totalContador = 0;
-      Object.keys(dados).forEach(id => {
-        const item = dados[id];
-        if (containers[item.tipo]) {
-          containers[item.tipo].innerHTML += criarCardHtml(id, item);
-          totalContador++;
-        }
+      if (dados) {
+        Object.keys(dados).forEach(id => {
+          const item = dados[id];
+          if (buffers[item.tipo] !== undefined) {
+            buffers[item.tipo] += criarCardHtml(id, item);
+            totalContador++;
+          }
+        });
+      }
+
+      Object.keys(containers).forEach(tipo => {
+        const el = containers[tipo];
+        if (el) el.innerHTML = buffers[tipo];
       });
+
       const totalTxt = document.getElementById("count-total");
       if (totalTxt) totalTxt.innerText = totalContador;
+
       verificarStatusPainelAdm();
       // Recalcula as setas do carrossel agora que os cards foram inseridos
       atualizarTodosCarrosseis();
+
       // LÓGICA DA ANIMAÇÃO APÓS CARREGAR
       const idParaAnimar = localStorage.getItem("idParaAnimar");
       if (idParaAnimar) {
@@ -80,6 +90,7 @@ function carregarLinksDoFirebase() {
 function gerenciarEstatisticasReais() {
   const hojeStr = new Date().toISOString().slice(0, 10);
   const idSessaoUnica = Math.random().toString(36).substring(2, 9);
+
   fetch(`${FIREBASE_URL}/estatisticas/visitas_totais.json`)
     .then(res => res.json())
     .then(total => {
@@ -88,6 +99,7 @@ function gerenciarEstatisticasReais() {
       const el = document.getElementById("count-visitas-total");
       if (el) el.innerText = novoTotal.toLocaleString("pt-BR");
     });
+
   fetch(`${FIREBASE_URL}/estatisticas/dias/${hojeStr}.json`)
     .then(res => res.json())
     .then(totalDia => {
@@ -96,10 +108,12 @@ function gerenciarEstatisticasReais() {
       const el = document.getElementById("count-visitas-hoje");
       if (el) el.innerText = novoTotalDia.toLocaleString("pt-BR");
     });
+
   const refOnline = `${FIREBASE_URL}/online/${idSessaoUnica}.json`;
   const enviarPulso = () => { fetch(refOnline, { method: "PUT", body: JSON.stringify({ lastSeen: Date.now() }) }); };
   enviarPulso();
-  setInterval(enviarPulso, 15000); 
+  setInterval(enviarPulso, 15000);
+
   setInterval(() => {
     fetch(`${FIREBASE_URL}/online.json`)
       .then(res => res.json())
@@ -130,6 +144,7 @@ function inicializarPlayerMusica() {
   const disco = document.getElementById("playerDisco");
   const btnEntrar = document.getElementById("btnEntrarSite");
   const intro = document.getElementById("introOverlay");
+
   const atualizarUI = () => {
     const tocando = !audio.paused;
     if (statusTexto) {
@@ -139,13 +154,16 @@ function inicializarPlayerMusica() {
     if (fabIcon) fabIcon.innerText = tocando ? "⏸️" : "🎵";
     if (disco) tocando ? disco.classList.add("playing") : disco.classList.remove("playing");
   };
+
   const toggleAudio = () => {
     if (audio.paused) { audio.play().catch(() => {}); } else { audio.pause(); }
   };
+
   if (btnDesktop) btnDesktop.onclick = toggleAudio;
   if (btnMobile) btnMobile.onclick = toggleAudio;
   audio.onplay = atualizarUI;
   audio.onpause = atualizarUI;
+
   if (btnEntrar) {
     btnEntrar.onclick = () => {
       intro.classList.add("ocultar");
@@ -155,7 +173,7 @@ function inicializarPlayerMusica() {
 }
 
 // ============================================================================
-// 4. ENGINE DO PAINEL ADMINISTRATIVO (COMPLETA E CORRIGIDA)
+// 4. ENGINE DO PAINEL ADMINISTRATIVO
 // ============================================================================
 function inicializarPainelControleAdm() {
   const formLogin = document.getElementById("formLoginAdm");
@@ -240,10 +258,8 @@ function inicializarPainelControleAdm() {
       return fetch(`${FIREBASE_URL}/links.json`, { method: "POST", body: JSON.stringify(novo) })
         .then(res => res.json())
         .then(data => {
-          // Salva o ID para a animação ocorrer após o carregamento
           localStorage.setItem("idParaAnimar", data.name);
 
-          // Fecha o modal e limpa o form sem recarregar a página
           formCadastro.reset();
           document.getElementById("admImgGrupoUrl").value = "";
           const preview = document.getElementById("previewBuscaGrupo");
@@ -251,13 +267,11 @@ function inicializarPainelControleAdm() {
           const modal = document.getElementById("modalAdmin");
           if (modal) modal.style.display = "none";
 
-          // Recarrega os dados e aplica a animação instantaneamente
           carregarLinksDoFirebase();
         });
     };
 
     if (arquivoImagem) {
-      // Se o adm escolheu um arquivo manualmente, ele tem prioridade
       const formData = new FormData();
       formData.append("image", arquivoImagem);
       fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData })
@@ -272,7 +286,6 @@ function inicializarPainelControleAdm() {
           btnPublicar.disabled = false;
         });
     } else if (imagemUrlAutomatica) {
-      // Usa a imagem que veio da busca automática
       publicar(imagemUrlAutomatica)
         .catch(err => {
           console.error(err);
@@ -312,11 +325,11 @@ function inicializarSistemaCompartilhar() {
   const btnTrigger = document.getElementById('btnShareTrigger');
   const menu = document.getElementById('shareMenu');
   btnTrigger?.addEventListener('click', (e) => { e.stopPropagation(); menu.classList.toggle('show'); });
-  
+
   const url = window.location.href;
   document.getElementById('shareWA')?.setAttribute('href', `https://api.whatsapp.com/send?text=${encodeURIComponent(url)}`);
   document.getElementById('shareTG')?.setAttribute('href', `https://t.me/share/url?url=${encodeURIComponent(url)}`);
-  
+
   document.getElementById('btnCopyLink')?.addEventListener('click', function() {
     navigator.clipboard.writeText(url).then(() => {
       const original = this.innerText;
@@ -336,25 +349,28 @@ document.addEventListener("click", (e) => {
 });
 
 // ============================================================================
-// 6. ENGINE DO CARROSSEL (SETAS + ARRASTAR SÓ NA ÁREA VAZIA + SCROLL NORMAL)
+// 6. ENGINE DO CARROSSEL — SÓ SETAS + SCROLL NATIVO
 // ============================================================================
-// Guarda uma função de "atualizar setas" para cada carrossel da página
+// Removido de propósito: o "arrastar com o clique do mouse" (mousedown/
+// mousemove/mouseup) e o cursor grab/grabbing que vinham junto. Era esse
+// sistema que transformava o ponteiro em mãozinha ao passar por cima do
+// carrossel e que brigava com o scroll normal da página. Agora o carrossel
+// se comporta como qualquer lista horizontal padrão da web: scroll nativo
+// (trackpad, barra de rolagem, touch no celular) + botões de seta para
+// quem usa mouse comum sem trackpad/scroll horizontal.
 let atualizadoresCarrossel = [];
 
 function inicializarSetasCarrossel() {
   atualizadoresCarrossel = []; // zera caso essa função rode mais de uma vez
 
   document.querySelectorAll(".carrossel-container").forEach((container) => {
-    // Evita duplicar wrapper/setas se essa função rodar de novo
     if (container.parentElement.classList.contains("carrossel-wrapper")) return;
 
-    // Cria um wrapper em volta do container pra poder posicionar as setas nas bordas
     const wrapper = document.createElement("div");
     wrapper.className = "carrossel-wrapper";
     container.parentNode.insertBefore(wrapper, container);
     wrapper.appendChild(container);
 
-    // Cria as duas setas
     const btnEsq = document.createElement("button");
     btnEsq.type = "button";
     btnEsq.className = "seta-carrossel seta-esquerda";
@@ -379,16 +395,13 @@ function inicializarSetasCarrossel() {
       container.scrollBy({ left: QUANTIDADE_ROLAGEM, behavior: "smooth" });
     });
 
-    // Impede o navegador de tentar "arrastar a imagem" nativamente
-    // (isso é o que causava a mãozinha travada mesmo fora dos cards)
     container.querySelectorAll("img").forEach(img => img.setAttribute("draggable", "false"));
 
-    // Habilita/desabilita e esconde as setas conforme a posição da rolagem.
-    // Também só libera a classe "pode-arrastar" (cursor grab) quando há overflow de verdade.
+    // Habilita/desabilita e esconde as setas conforme a posição da rolagem
+    // e só as mostra quando existe overflow real (algo pra rolar).
     const atualizarSetas = () => {
       const temOverflow = container.scrollWidth > container.clientWidth + 5;
       wrapper.classList.toggle("sem-overflow", !temOverflow);
-      container.classList.toggle("pode-arrastar", temOverflow);
       if (!temOverflow) return;
 
       const maxScroll = container.scrollWidth - container.clientWidth - 2;
@@ -396,43 +409,9 @@ function inicializarSetasCarrossel() {
       btnDir.classList.toggle("seta-desabilitada", container.scrollLeft >= maxScroll);
     };
 
-    container.addEventListener("scroll", atualizarSetas);
+    container.addEventListener("scroll", atualizarSetas, { passive: true });
     window.addEventListener("resize", atualizarSetas);
     atualizadoresCarrossel.push(atualizarSetas);
-
-    // ---- Arrastar com o clique do mouse — só inicia se o clique começar
-    //      na área vazia do carrossel (fora de qualquer .group-card) ----
-    let arrastando = false;
-    let posInicialX = 0;
-    let scrollInicial = 0;
-
-    container.addEventListener("mousedown", (e) => {
-      if (e.target.closest(".group-card")) return; // clique veio de dentro de um card: não arrasta
-      arrastando = true;
-      container.classList.add("arrastando");
-      posInicialX = e.pageX - container.offsetLeft;
-      scrollInicial = container.scrollLeft;
-    });
-    container.addEventListener("mouseleave", () => {
-      arrastando = false;
-      container.classList.remove("arrastando");
-    });
-    container.addEventListener("mouseup", () => {
-      arrastando = false;
-      container.classList.remove("arrastando");
-    });
-    container.addEventListener("mousemove", (e) => {
-      if (!arrastando) return;
-      e.preventDefault();
-      const posAtualX = e.pageX - container.offsetLeft;
-      const distancia = (posAtualX - posInicialX) * 1.4;
-      container.scrollLeft = scrollInicial - distancia;
-    });
-
-    // OBS: a conversão da rodinha do mouse para scroll horizontal foi removida —
-    // era ela que travava a rolagem normal da página. Agora a rodinha rola a
-    // página verticalmente como em qualquer site; pra mover os cards, usa as
-    // setas ou clica e arrasta na faixa vazia abaixo dos cards.
   });
 }
 
