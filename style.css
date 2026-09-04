@@ -477,7 +477,7 @@ body {
      a rolagem vertical da página junto (evita o travamento ao rolar
      rápido por cima da área dos grupos). */
   overscroll-behavior-x: contain;
-  touch-action: pan-x;
+  scroll-snap-type: x proximity;
   /* -webkit-overflow-scrolling: touch; REMOVIDO DE PROPÓSITO.
      Essa propriedade é obsoleta (o scroll já é suave nativamente em
      todo navegador mobile atual) e, combinada com os elementos "fixed"
@@ -568,6 +568,7 @@ body {
   flex-direction: column;
   transition: transform 0.2s, border-color 0.2s;
   padding: 10px;
+  scroll-snap-align: start;
 }
 
 .group-card:hover {
@@ -1169,7 +1170,12 @@ select.admin-input option {
 
   .stats-bar { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 2rem; }
 
-  /* No mobile o toque já rola o carrossel naturalmente: some com as setas */
+  /* No mobile o toque já rola o carrossel naturalmente: some com as setas.
+     O carrossel horizontal continua ativo aqui — o que travava a rolagem
+     vertical antes era a propriedade touch-action: pan-x (removida lá em
+     cima). Sem ela, o navegador já detecta sozinho se o dedo quer rolar
+     o carrossel (gesto horizontal) ou a página (gesto vertical), do jeito
+     que qualquer app com carrossel (Instagram, Netflix etc.) já funciona. */
   .seta-carrossel { display: none !important; }
 
   /* BOTÃO FLUTUANTE DE ÁUDIO ESTILO PERSONALIZADO */
